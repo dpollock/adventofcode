@@ -1,12 +1,12 @@
 using System.Linq;
 using AdventOfCode.Model;
 
-namespace AdventOfCode.Generator;
-
-class ProjectReadmeGenerator {
-    public string Generate(int firstYear, int lastYear) {
+namespace AdventOfCode.Generator
+{
+    class ProjectReadmeGenerator {
+        public string Generate(int firstYear, int lastYear) {
        
-        return $@"
+            return $@"
            > # Advent of Code ({firstYear}-{lastYear})
            > C# solutions to the Advent of Code problems.
            > Check out https://adventofcode.com.
@@ -62,17 +62,18 @@ class ProjectReadmeGenerator {
            >  **Note:** this feature relies on the ""Memento Inputs"" extension to store your session cookie, you need 
            >  to set it up in advance from the Command Palette with `Install Extensions`.
            > ".StripMargin("> ");
+        }
     }
-}
 
-class ReadmeGeneratorForYear {
-    public string Generate(Calendar calendar) {
-        return $@"
+    class ReadmeGeneratorForYear {
+        public string Generate(Calendar calendar) {
+            return $@"
            > # Advent of Code ({calendar.Year})
            > Check out https://adventofcode.com/{calendar.Year}.
 
            > <a href=""https://adventofcode.com/{calendar.Year}""><img src=""calendar.svg"" width=""80%"" /></a>
            
            > ".StripMargin("> ");
+        }
     }
 }

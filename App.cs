@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using AdventOfCode;
 
 var tsolvers = Assembly.GetEntryAssembly()!.GetTypes()
-    .Where(t => t.GetTypeInfo().IsClass && typeof(Solver).IsAssignableFrom(t))
+    .Where(t => t.GetTypeInfo().IsClass && typeof(ISolver).IsAssignableFrom(t))
     .OrderBy(t => t.FullName)
     .ToArray();
 
@@ -109,8 +109,8 @@ var action =
 
 action();
 
-Solver[] GetSolvers(params Type[] tsolver) {
-    return tsolver.Select(t => Activator.CreateInstance(t) as Solver).ToArray();
+ISolver[] GetSolvers(params Type[] tsolver) {
+    return tsolver.Select(t => Activator.CreateInstance(t) as ISolver).ToArray();
 }
 
 Action Command(string[] args, string[] regexes, Func<string[], Action> parse) {
