@@ -21,11 +21,11 @@ namespace AdventOfCode.Y2021.Day01
             return CountNumOfIncreases(threeGroupSums);
         }
 
-        private static object CountNumOfIncreases(List<int> threeGroupSums)
+        private static object CountNumOfIncreases(List<int> numbers)
         {
             var numOfIncreases = 0;
             var previous = 0;
-            foreach (var current in threeGroupSums)
+            foreach (var current in numbers)
             {
                 if (previous != 0 && current > previous)
                 {
