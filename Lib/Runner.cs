@@ -7,29 +7,36 @@ using System.Diagnostics;
 
 namespace AdventOfCode
 {
-    class ProblemName : Attribute {
+    class ProblemName : Attribute
+    {
         public readonly string Name;
-        public ProblemName(string name) {
+        public ProblemName(string name)
+        {
             this.Name = name;
         }
     }
 
-    interface ISolver {
+    interface ISolver
+    {
         object PartOne(string input);
         object PartTwo(string input) => null;
     }
 
-    static class SolverExtensions {
+    static class SolverExtensions
+    {
 
-        public static IEnumerable<object> Solve(this ISolver solver, string input) {
+        public static IEnumerable<object> Solve(this ISolver solver, string input)
+        {
             yield return solver.PartOne(input);
             var res = solver.PartTwo(input);
-            if (res != null) {
+            if (res != null)
+            {
                 yield return res;
             }
         }
 
-        public static string GetName(this ISolver solver) {
+        public static string GetName(this ISolver solver)
+        {
             return (
                 solver
                     .GetType()
@@ -37,38 +44,47 @@ namespace AdventOfCode
             ).Name;
         }
 
-        public static string DayName(this ISolver solver) {
+        public static string DayName(this ISolver solver)
+        {
             return $"Day {solver.Day()}";
         }
 
-        public static int Year(this ISolver solver) {
+        public static int Year(this ISolver solver)
+        {
             return Year(solver.GetType());
         }
 
-        public static int Year(Type t) {
+        public static int Year(Type t)
+        {
             return int.Parse(t.FullName.Split('.')[1].Substring(1));
         }
-        public static int Day(this ISolver solver) {
+        public static int Day(this ISolver solver)
+        {
             return Day(solver.GetType());
         }
 
-        public static int Day(Type t) {
+        public static int Day(Type t)
+        {
             return int.Parse(t.FullName.Split('.')[2].Substring(3));
         }
 
-        public static string WorkingDir(int year) {
-            return Path.Combine(year.ToString());
+        public static string WorkingDir(int year)
+        {
+            return Path.Combine("c:\\adventofcode", year.ToString());
         }
 
-        public static string WorkingDir(int year, int day) {
+        public static string WorkingDir(int year, int day)
+        {
             return Path.Combine(WorkingDir(year), "Day" + day.ToString("00"));
         }
 
-        public static string WorkingDir(this ISolver solver) {
+        public static string WorkingDir(this ISolver solver)
+        {
             return WorkingDir(solver.Year(), solver.Day());
         }
 
-        public static ISplashScreen SplashScreen(this ISolver solver) {
+        public static ISplashScreen SplashScreen(this ISolver solver)
+        {
             var tsplashScreen = Assembly.GetEntryAssembly().GetTypes()
                 .Where(t => t.GetTypeInfo().IsClass && typeof(ISplashScreen).IsAssignableFrom(t))
                 .Single(t => Year(t) == solver.Year());
@@ -78,18 +94,21 @@ namespace AdventOfCode
 
     record SolverResult(string[] answers, string[] errors);
 
-    class Runner {
+    class Runner
+    {
 
-        private static string GetNormalizedInput(string file) {
+        private static string GetNormalizedInput(string file)
+        {
             var input = File.ReadAllText(file);
-            if (input.EndsWith("\n")) {
+            if (input.EndsWith("\n"))
+            {
                 input = input.Substring(0, input.Length - 1);
             }
             return input;
         }
 
-        public static SolverResult RunSolver(ISolver solver) {
-
+        public static SolverResult RunSolver(ISolver solver)
+        {
             var workingDir = solver.WorkingDir();
             var indent = "    ";
             Write(ConsoleColor.White, $"{indent}{solver.DayName()}: {solver.GetName()}");
@@ -103,7 +122,8 @@ namespace AdventOfCode
             var answers = new List<string>();
             var errors = new List<string>();
             var stopwatch = Stopwatch.StartNew();
-            foreach (var line in solver.Solve(input)) {
+            foreach (var line in solver.Solve(input))
+            {
                 var ticks = stopwatch.ElapsedTicks;
                 answers.Add(line.ToString());
                 var (statusColor, status, err) =
@@ -111,7 +131,8 @@ namespace AdventOfCode
                     refout[iline] == line.ToString() ? (ConsoleColor.DarkGreen, "✓", null) :
                     (ConsoleColor.Red, "X", $"{solver.DayName()}: In line {iline + 1} expected '{refout[iline]}' but found '{line}'");
 
-                if (err != null) {
+                if (err != null)
+                {
                     errors.Add(err);
                 }
 
@@ -132,12 +153,15 @@ namespace AdventOfCode
             return new SolverResult(answers.ToArray(), errors.ToArray());
         }
 
-        public static void RunAll(params ISolver[] solvers) {
+        public static void RunAll(params ISolver[] solvers)
+        {
             var errors = new List<string>();
 
             var lastYear = -1;
-            foreach (var solver in solvers) {
-                if (lastYear != solver.Year()) {
+            foreach (var solver in solvers)
+            {
+                if (lastYear != solver.Year())
+                {
                     solver.SplashScreen().Show();
                     lastYear = solver.Year();
                 }
@@ -149,15 +173,18 @@ namespace AdventOfCode
 
             WriteLine();
 
-            if (errors.Any()) {
+            if (errors.Any())
+            {
                 WriteLine(ConsoleColor.Red, "Errors:\n" + string.Join("\n", errors));
             }
         }
 
-        private static void WriteLine(ConsoleColor color = ConsoleColor.Gray, string text = "") {
+        private static void WriteLine(ConsoleColor color = ConsoleColor.Gray, string text = "")
+        {
             Write(color, text + "\n");
         }
-        private static void Write(ConsoleColor color = ConsoleColor.Gray, string text = "") {
+        private static void Write(ConsoleColor color = ConsoleColor.Gray, string text = "")
+        {
             var c = Console.ForegroundColor;
             Console.ForegroundColor = color;
             Console.Write(text);
