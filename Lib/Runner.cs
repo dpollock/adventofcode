@@ -177,6 +177,8 @@ namespace AdventOfCode
             {
                 WriteLine(ConsoleColor.Red, "Errors:\n" + string.Join("\n", errors));
             }
+
+            Console.ReadLine();
         }
 
         private static void WriteLine(ConsoleColor color = ConsoleColor.Gray, string text = "")
