@@ -192,7 +192,7 @@ namespace AdventOfCode
                 new DocumentRequest(new Url(baseUri + $"{year}/day/{day}/input"))).Task;
             return Problem.Parse(
                 year, day, baseUri + $"{year}/day/{day}", problemStatement,
-                new StreamReader(input.Content).ReadToEnd()
+                await new StreamReader(input.Content).ReadToEndAsync()
             );
         }
 
