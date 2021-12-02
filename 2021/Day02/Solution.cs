@@ -1,70 +1,72 @@
 using adventofcode.Lib;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Text;
 
 namespace AdventOfCode.Y2021.Day02
 {
-  [ProblemName("Dive!")]      
-  class Solution : ISolver {
-
+    [ProblemName("Dive!")]
+    internal class Solution : ISolver
+    {
         public object PartOne(string input)
         {
-            var directions = input.ReadLines<string>().ToList();
+            var directions = input.ReadLinesToObject<InputLine>();
 
             var depth = 0;
             var horizontal = 0;
 
-            foreach (var direction in directions)
+            foreach (var d in directions)
             {
-                var parsed  =direction.Split(" ");
-                if (parsed[0] == "forward")
+                switch (d.Command)
                 {
-                    horizontal += int.Parse(parsed[1]);
-                }
-                if (parsed[0] == "down")
-                {
-                    depth += int.Parse(parsed[1]);
-                }
-
-                if (parsed[0] == "up")
-                {
-                    depth -= int.Parse(parsed[1]);
+                    case Command.forward:
+                        horizontal += d.Amount;
+                        break;
+                    case Command.down:
+                        depth += d.Amount;
+                        break;
+                    case Command.up:
+                        depth -= d.Amount;
+                        break;
                 }
             }
 
             return depth * horizontal;
         }
 
-        public object PartTwo(string input) {
-            var directions = input.ReadLines<string>().ToList();
+        public object PartTwo(string input)
+        {
+            var directions = input.ReadLinesToObject<InputLine>();
 
             var depth = 0;
             var horizontal = 0;
             var aim = 0;
-            foreach (var direction in directions)
-            {
-                var parsed = direction.Split(" ");
-                if (parsed[0] == "forward")
+            foreach (var d in directions)
+                switch (d.Command)
                 {
-                    horizontal += int.Parse(parsed[1]);
-                    depth += int.Parse(parsed[1]) * aim;
+                    case Command.forward:
+                        horizontal += d.Amount;
+                        depth += d.Amount * aim;
+                        break;
+                    case Command.down:
+                        aim += d.Amount;
+                        break;
+                    case Command.up:
+                        aim -= d.Amount;
+                        break;
                 }
-                if (parsed[0] == "down")
-                {
-                    aim += int.Parse(parsed[1]);
-                }
-
-                if (parsed[0] == "up")
-                {
-                    aim -= int.Parse(parsed[1]);
-                }
-            }
 
             return depth * horizontal;
-}
-  }
+        }
+
+        private enum Command
+        {
+            forward,
+            down,
+            up
+        }
+
+        private class InputLine
+        {
+            public Command Command { get; set; }
+            public int Amount { get; set; }
+        }
+    }
 }

@@ -10,12 +10,12 @@ namespace AdventOfCode.Y2021.Day01
     {
         public object PartOne(string input)
         {
-            return CountNumOfIncreases(input.ReadLines<int>().ToList());
+            return CountNumOfIncreases(input.ReadLinesToType<int>().ToList());
         }
 
         public object PartTwo(string input)
         {
-            var allInput = input.ReadLines<int>().ToList();
+            var allInput = input.ReadLinesToType<int>().ToList();
 
             var threeGroupSums = allInput.Skip(2).Select((x, index) => x + allInput[index] + allInput[index + 1]).ToList();
 
