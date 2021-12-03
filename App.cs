@@ -17,7 +17,7 @@ var action =
         return () => new Updater().Update(year, day).Wait();
     }) ??
     Command(args, Args("update", "today"), m => {
-        var dt = DateTime.UtcNow.AddHours(-5);
+        var dt = DateTime.UtcNow;
         if (dt is { Month: 12, Day: >= 1 and <= 25 }) {
             return () => new Updater().Update(dt.Year, dt.Day).Wait();
         } else {
@@ -36,7 +36,7 @@ var action =
         };
     }) ??
     Command(args, Args("upload", "today"), m => {
-        var dt = DateTime.UtcNow.AddHours(-5);
+        var dt = DateTime.UtcNow;
         if (dt is { Month: 12, Day: >= 1 and <= 25 }) {
 
             var tsolver = tsolvers.First(tsolver =>
@@ -74,7 +74,7 @@ var action =
         return () => Runner.RunAll(GetSolvers(tsolvers));
     }) ??
     Command(args, Args("today"), m => {
-        var dt = DateTime.UtcNow.AddHours(-5);
+        var dt = DateTime.UtcNow;
         if (dt is { Month: 12, Day: >= 1 and <= 25 }) {
 
             var tsolversSelected = tsolvers.First(tsolver =>
