@@ -54,20 +54,12 @@ namespace AdventOfCode.Y2021.Day03
             {
                 var most = bit.First();
                 var least = bit.Last();
-                if (most.num != least.num)
-                {
-                    mostCommon += most.bit;
-                    leastCommon += least.bit;
-                }
-                else
-                {
-                    mostCommon += "1";
-                    leastCommon += "0";
-                }
+                mostCommon += most.bit;
+                leastCommon += least.bit;
             }
 
 
-            var oxygenCandidates = rows.ToList();
+            var oxygenCandidates = rows.Where(x => x[0] == mostCommon[0]).ToList();
             for (int i = 0; i < numOfBits && oxygenCandidates.Count() != 1; i++)
             {
                 int onesCount = oxygenCandidates.Count(c => c[i] == '1');
