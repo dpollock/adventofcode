@@ -71,9 +71,7 @@ namespace AdventOfCode.Y2021.Day04
 
             }
 
-
-            lastWinningBoard.MarkBoard(lastWinningNumber, false);
-            var sumOfUnMarked = lastWinningBoard.SumOfUnMarked() -  lastWinningNumber;
+            var sumOfUnMarked = lastWinningBoard.SumOfUnMarked() -  lastWinningNumber; 
             
             return sumOfUnMarked * lastWinningNumber;
         }
