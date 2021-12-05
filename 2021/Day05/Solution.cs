@@ -63,7 +63,7 @@ namespace AdventOfCode.Y2021.Day05
                         covered.Add(new Point(i, s.To.Y));
                     }
                 }
-                
+
             }
 
             var uniqueSegments = covered.GroupBy(m => new { m.X, m.Y }).Select(x => new { x.Key, count = x.Count() }).ToList();
@@ -94,93 +94,11 @@ namespace AdventOfCode.Y2021.Day05
                 var dx = Math.Sign(s.To.X - s.From.X);
                 var dy = Math.Sign(s.To.Y - s.From.Y);
 
-                for (int x = 0; x != s.To.X + dx ; x+= dx)
+                int x;
+                int y;
+                for (x = s.From.X, y = s.From.Y; x != s.To.X + dx || y != s.To.Y + dy; x += dx, y += dy)
                 {
-                    for (int y = 0; y != s.To.Y + dy; y += dy)
-                    {
-                        covered.Add(new Point(x,y));
-                    }
-                }
-                ////Map it out
-                //if (s.From.X == s.To.X)
-                //{
-                //    var start = s.From.Y;
-                //    var finish = s.To.Y;
-                //    if (start > finish)
-                //    {
-                //        finish = s.From.Y;
-                //        start = s.To.Y;
-                //    }
-                //    for (int i = start; i <= finish; i++)
-                //    {
-                //        covered.Add(new Point(s.To.X, i));
-                //    }
-                //}
-                //else if (s.From.Y == s.To.Y)
-                //{
-                //    var start = s.From.X;
-                //    var finish = s.To.X;
-                //    if (start > finish)
-                //    {
-                //        finish = s.From.X;
-                //        start = s.To.X;
-                //    }
-                //    for (int i = start; i <= finish; i++)
-                //    {
-                //        covered.Add(new Point(i, s.To.Y));
-                //    }
-                //}
-                //else
-                //{
-                //    bool increaseX = s.From.X < s.To.X;
-                //    bool increaseY = s.From.Y < s.To.Y;
-
-
-                //    if (increaseX && increaseY)
-                //    {
-                //        for (int x = s.From.X; x <= s.To.X; x++)
-                //        {
-                //            for (int y = s.From.Y; y <= s.To.Y; y++)
-                //            {
-                //                covered.Add(new Point(x, y));
-                //            }
-                //        }
-                //    }
-
-
-                //    if (increaseX && !increaseY)
-                //    {
-                //        for (int x = s.From.X; x <= s.To.X; x++)
-                //        {
-                //            for (int y = s.From.Y; y >= s.To.Y; y--)
-                //            {
-                //                covered.Add(new Point(x, y));
-                //            }
-                //        }
-                //    }
-
-                //    if (!increaseX && increaseY)
-                //    {
-                //        for (int x = s.From.X; x >= s.To.X; x--)
-                //        {
-                //            for (int y = s.From.Y; y <= s.To.Y; y++)
-                //            {
-                //                covered.Add(new Point(x, y));
-                //            }
-                //        }
-                //    }
-
-                //    if (!increaseX && !increaseY)
-                //    {
-                //        for (int x = s.From.X; x >= s.To.X; x--)
-                //        {
-                //            for (int y = s.From.Y; y >= s.To.Y; y--)
-                //            {
-                //                covered.Add(new Point(x, y));
-                //            }
-                //        }
-                //    }
-
+                    covered.Add(new Point(x, y));
                 }
             }
 
