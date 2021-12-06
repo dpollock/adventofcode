@@ -21,14 +21,20 @@ namespace AdventOfCode.Y2021.Day06
 
         public object PartTwo(string input)
         {
-            var fishes = input.Split(",").Select(ulong.Parse).ToList();
+
+            //instead of keep track of each individual fish which will make us quickly hit the ulong limit and take FOREVER,
+            //we'll keep track of each day and each run will just "rotate" the days numbers. Less looping, more efficent
+            var fishes = input.Split(",").Select(int.Parse)
+                .GroupBy(x => x)
+                .ToDictionary(g => g.Key, g => (long)g.Count());
 
             var days = 256;
+            for (int i = 0; i < days; i++)
+                fishes = GrowFishPart2(fishes);
 
-            GrowFish(days, fishes);
 
 
-            var count = fishes.Count();
+            var count = fishes.Values.Sum();
             return count;
 
         }
@@ -50,5 +56,21 @@ namespace AdventOfCode.Y2021.Day06
                     }
             }
         }
+
+        private static Dictionary<int, long> GrowFishPart2(Dictionary<int, long> fishes) =>
+            new()
+            {
+                // 8 is "new fish" and all zeros move to that
+                [8] = fishes.GetValueOrDefault(0),
+                [7] = fishes.GetValueOrDefault(8),
+                // 0 ages go to 6, along with 7 ages
+                [6] = fishes.GetValueOrDefault(0) + fishes.GetValueOrDefault(7),
+                [5] = fishes.GetValueOrDefault(6),
+                [4] = fishes.GetValueOrDefault(5),
+                [3] = fishes.GetValueOrDefault(4),
+                [2] = fishes.GetValueOrDefault(3),
+                [1] = fishes.GetValueOrDefault(2),
+                [0] = fishes.GetValueOrDefault(1),
+            };
     }
 }
