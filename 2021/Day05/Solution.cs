@@ -82,6 +82,7 @@ namespace AdventOfCode.Y2021.Day05
             Regex r = new Regex(@"([0-9]+),([0-9]+)\s->\s([0-9]+),([0-9]+)");
             foreach (var row in rows)
             {
+                //parse row
                 var match = r.Match(row);
                 var s = (new LineSegment()
                 {
@@ -91,17 +92,22 @@ namespace AdventOfCode.Y2021.Day05
 
                 segments.Add(s);
 
+
+                //figure out if it's increase or staying the same on x and y 
                 var dx = Math.Sign(s.To.X - s.From.X);
                 var dy = Math.Sign(s.To.Y - s.From.Y);
 
                 int x;
                 int y;
+                //loop through the points it crosses and record them
                 for (x = s.From.X, y = s.From.Y; x != s.To.X + dx || y != s.To.Y + dy; x += dx, y += dy)
                 {
                     covered.Add(new Point(x, y));
                 }
             }
 
+
+            //group by x,y and count the duplicates
             var uniqueSegments = covered.GroupBy(m => new { m.X, m.Y }).Select(x => new { x.Key, count = x.Count() }).ToList();
             var result = uniqueSegments.Count(x => x.count > 1);
             return result;
