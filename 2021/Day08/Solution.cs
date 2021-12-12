@@ -64,6 +64,7 @@ namespace AdventOfCode.Y2021.Day08
                 mapping[7] = wires.First(x => x.Count == 3);
                 mapping[8] = wires.First(x => x.Count == 7);
 
+
                 //Find 6, which is then used to find C and F
                 mapping[6] = wires.First(x => x.Count == 6 && !mapping[7].All(a => x.Contains(a)) && !mapping.ContainsValue(x));
                 char _c = mapping[1].Except(mapping[6]).First();
