@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-
 using AdventOfCode;
 
 var tsolvers = Assembly.GetEntryAssembly()!.GetTypes()
@@ -11,23 +10,25 @@ var tsolvers = Assembly.GetEntryAssembly()!.GetTypes()
     .ToArray();
 
 var action =
-    Command(args, Args("update", "([0-9]+)/([0-9]+)"), m => {
+    Command(args, Args("update", "([0-9]+)/([0-9]+)"), m =>
+    {
         var year = int.Parse(m[1]);
         var day = int.Parse(m[2]);
         return () => new Updater().Update(year, day).Wait();
     }) ??
-    Command(args, Args("update", "today"), m => {
+    Command(args, Args("update", "today"), m =>
+    {
         var dt = DateTime.UtcNow;
-        if (dt is { Month: 12, Day: >= 1 and <= 25 }) {
+        if (dt is { Month: 12, Day: >= 1 and <= 25 })
             return () => new Updater().Update(dt.Year, dt.Day).Wait();
-        } else {
-            throw new Exception("Event is not active. This option works in Dec 1-25 only)");
-        }
+        throw new Exception("Event is not active. This option works in Dec 1-25 only)");
     }) ??
-    Command(args, Args("upload", "([0-9]+)/([0-9]+)"), m => {
+    Command(args, Args("upload", "([0-9]+)/([0-9]+)"), m =>
+    {
         var year = int.Parse(m[1]);
         var day = int.Parse(m[2]);
-        return () => {
+        return () =>
+        {
             var tsolver = tsolvers.First(tsolver =>
                 SolverExtensions.Year(tsolver) == year &&
                 SolverExtensions.Day(tsolver) == day);
@@ -35,22 +36,23 @@ var action =
             new Updater().Upload(GetSolvers(tsolver)[0]).Wait();
         };
     }) ??
-    Command(args, Args("upload", "today"), m => {
+    Command(args, Args("upload", "today"), m =>
+    {
         var dt = DateTime.UtcNow;
-        if (dt is { Month: 12, Day: >= 1 and <= 25 }) {
-
+        if (dt is { Month: 12, Day: >= 1 and <= 25 })
+        {
             var tsolver = tsolvers.First(tsolver =>
                 SolverExtensions.Year(tsolver) == dt.Year &&
                 SolverExtensions.Day(tsolver) == dt.Day);
 
             return () =>
                 new Updater().Upload(GetSolvers(tsolver)[0]).Wait();
-
-        } else {
-            throw new Exception("Event is not active. This option works in Dec 1-25 only)");
         }
+
+        throw new Exception("Event is not active. This option works in Dec 1-25 only)");
     }) ??
-    Command(args, Args("([0-9]+)/([0-9]+)"), m => {
+    Command(args, Args("([0-9]+)/([0-9]+)"), m =>
+    {
         var year = int.Parse(m[0]);
         var day = int.Parse(m[1]);
         var tsolversSelected = tsolvers.First(tsolver =>
@@ -58,87 +60,90 @@ var action =
             SolverExtensions.Day(tsolver) == day);
         return () => Runner.RunAll(GetSolvers(tsolversSelected));
     }) ??
-        Command(args, Args("[0-9]+"), m => {
-            var year = int.Parse(m[0]);
-            var tsolversSelected = tsolvers.Where(tsolver =>
-                SolverExtensions.Year(tsolver) == year);
-            return () => Runner.RunAll(GetSolvers(tsolversSelected.ToArray()));
-        }) ??
-    Command(args, Args("([0-9]+)/all"), m => {
+    Command(args, Args("[0-9]+"), m =>
+    {
         var year = int.Parse(m[0]);
         var tsolversSelected = tsolvers.Where(tsolver =>
             SolverExtensions.Year(tsolver) == year);
         return () => Runner.RunAll(GetSolvers(tsolversSelected.ToArray()));
     }) ??
-    Command(args, Args("all"), m => {
-        return () => Runner.RunAll(GetSolvers(tsolvers));
+    Command(args, Args("([0-9]+)/all"), m =>
+    {
+        var year = int.Parse(m[0]);
+        var tsolversSelected = tsolvers.Where(tsolver =>
+            SolverExtensions.Year(tsolver) == year);
+        return () => Runner.RunAll(GetSolvers(tsolversSelected.ToArray()));
     }) ??
-    Command(args, Args("today"), m => {
+    Command(args, Args("all"), m => { return () => Runner.RunAll(GetSolvers(tsolvers)); }) ??
+    Command(args, Args("today"), m =>
+    {
         var dt = DateTime.UtcNow;
-        if (dt is { Month: 12, Day: >= 1 and <= 25 }) {
-
+        if (dt is { Month: 12, Day: >= 1 and <= 25 })
+        {
             var tsolversSelected = tsolvers.First(tsolver =>
                 SolverExtensions.Year(tsolver) == dt.Year &&
                 SolverExtensions.Day(tsolver) == dt.Day);
 
             return () =>
                 Runner.RunAll(GetSolvers(tsolversSelected));
-
-        } else {
-            throw new Exception("Event is not active. This option works in Dec 1-25 only)");
         }
+
+        throw new Exception("Event is not active. This option works in Dec 1-25 only)");
     }) ??
-    Command(args, Args("calendars"), _ => {
-        return () => {
+    Command(args, Args("calendars"), _ =>
+    {
+        return () =>
+        {
             var tsolversSelected = (
-                    from tsolver in tsolvers
-                    group tsolver by SolverExtensions.Year(tsolver) into g
-                    orderby SolverExtensions.Year(g.First()) descending
-                    select g.First()
-                ).ToArray();
+                from tsolver in tsolvers
+                group tsolver by SolverExtensions.Year(tsolver)
+                into g
+                orderby SolverExtensions.Year(g.First()) descending
+                select g.First()
+            ).ToArray();
 
             var solvers = GetSolvers(tsolversSelected);
-            foreach (var solver in solvers) {
-                solver.SplashScreen().Show();
-            }
+            foreach (var solver in solvers) solver.SplashScreen().Show();
         };
     }) ??
-    new Action(() => {
-        Console.WriteLine(Usage.Get());
-    });
+    (() => { Console.WriteLine(Usage.Get()); });
 
 action();
 
-ISolver[] GetSolvers(params Type[] tsolver) {
+ISolver[] GetSolvers(params Type[] tsolver)
+{
     return tsolver.Select(t => Activator.CreateInstance(t) as ISolver).ToArray();
 }
 
-Action Command(string[] args, string[] regexes, Func<string[], Action> parse) {
-    if (args.Length != regexes.Length) {
-        return null;
+Action Command(string[] args, string[] regexes, Func<string[], Action> parse)
+{
+    if (args.Length != regexes.Length) return null;
+    var matches = args.Zip(regexes, (arg, regex) => new Regex("^" + regex + "$").Match(arg));
+    if (!matches.All(match => match.Success)) return null;
+    try
+    {
+        return parse(matches.SelectMany(m =>
+            m.Groups.Count > 1
+                ? m.Groups.Cast<Group>().Skip(1).Select(g => g.Value)
+                : new[] { m.Value }
+        ).ToArray());
     }
-    var matches = Enumerable.Zip(args, regexes, (arg, regex) => new Regex("^" + regex + "$").Match(arg));
-    if (!matches.All(match => match.Success)) {
-        return null;
-    }
-    try {
-
-        return parse(matches.SelectMany(m => 
-                m.Groups.Count > 1 ? m.Groups.Cast<Group>().Skip(1).Select(g => g.Value) 
-                                   : new[] { m.Value }
-            ).ToArray());
-    } catch {
+    catch
+    {
         return null;
     }
 }
 
-string[] Args(params string[] regex) {
+string[] Args(params string[] regex)
+{
     return regex;
 }
 
-class Usage {
-    public static string Get() {
-        return $@"
+internal class Usage
+{
+    public static string Get()
+    {
+        return @"
             > Usage: dotnet run [arguments]
             > 1) To run the solutions and admire your advent calendar:
 

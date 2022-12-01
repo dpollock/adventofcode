@@ -3,12 +3,14 @@ using System.Linq;
 using System.Text;
 using AdventOfCode.Model;
 
-namespace AdventOfCode.Generator
+namespace AdventOfCode.Generator;
+
+internal class SplashScreenGenerator
 {
-    class SplashScreenGenerator {
-        public string Generate(Calendar calendar) {
-            string calendarPrinter = CalendarPrinter(calendar);
-            return $@"
+    public string Generate(Calendar calendar)
+    {
+        var calendarPrinter = CalendarPrinter(calendar);
+        return $@"
             |using System;
             |
             |namespace AdventOfCode.Y{calendar.Year}
@@ -29,59 +31,66 @@ namespace AdventOfCode.Generator
             |   }}
             |}}
             |".StripMargin();
+    }
+
+    private string CalendarPrinter(Calendar calendar)
+    {
+        var lines = calendar.Lines.Select(line =>
+            new[] { new CalendarToken { Text = "           " } }.Concat(line)).ToList();
+
+        var bw = new BufferWriter();
+        foreach (var line in lines)
+        {
+            foreach (var token in line) bw.Write(token.ConsoleColor, token.Text, token.Bold);
+
+            bw.Write(-1, "\n", false);
         }
 
-        private string CalendarPrinter(Calendar calendar) {
+        return bw.GetContent();
+    }
 
-            var lines = calendar.Lines.Select(line =>
-                new[] { new CalendarToken { Text = "           " } }.Concat(line)).ToList();
+    private bool Matches(string[] selector, object x)
+    {
+        return true;
+    }
 
-            var bw = new BufferWriter();
-            foreach (var line in lines) {
-                foreach (var token in line) {
-                    bw.Write(token.ConsoleColor, token.Text, token.Bold);
-                }
+    private class BufferWriter
+    {
+        private string buffer = "";
+        private bool bufferBold;
+        private int bufferColor = -1;
+        private readonly StringBuilder sb = new();
 
-                bw.Write(-1, "\n", false);
+        public void Write(int color, string text, bool bold)
+        {
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                if (!string.IsNullOrWhiteSpace(buffer) && (color != bufferColor || bufferBold != bold)) Flush();
+                bufferColor = color;
+                bufferBold = bold;
             }
-            return bw.GetContent();
+
+            buffer += text;
         }
 
-        bool Matches(string[] selector, object x){
-            return true;
+        private void Flush()
+        {
+            while (buffer.Length > 0)
+            {
+                var block = buffer.Substring(0, Math.Min(100, buffer.Length));
+                buffer = buffer.Substring(block.Length);
+                block = block.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n");
+                sb.AppendLine(
+                    $@"Write(0x{bufferColor.ToString("x")}, {bufferBold.ToString().ToLower()}, ""{block}"");");
+            }
+
+            buffer = "";
         }
 
-        class BufferWriter {
-            StringBuilder sb = new StringBuilder();
-            int bufferColor = -1;
-            string buffer = "";
-            bool bufferBold;
-
-            public void Write(int color, string text, bool bold) {
-                if (!string.IsNullOrWhiteSpace(text)) {
-                    if (!string.IsNullOrWhiteSpace(buffer) && (color != bufferColor || this.bufferBold != bold) ) {
-                        Flush();
-                    }
-                    bufferColor = color;
-                    bufferBold = bold;
-                }
-                buffer += text;
-            }
-
-            private void Flush() {
-                while (buffer.Length > 0) {
-                    var block = buffer.Substring(0, Math.Min(100, buffer.Length));
-                    buffer = buffer.Substring(block.Length);
-                    block = block.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n");
-                    sb.AppendLine($@"Write(0x{bufferColor.ToString("x")}, {bufferBold.ToString().ToLower()}, ""{block}"");");
-                }
-                buffer = "";
-            }
-
-            public string GetContent() {
-                Flush();
-                return sb.ToString();
-            }
+        public string GetContent()
+        {
+            Flush();
+            return sb.ToString();
         }
     }
 }

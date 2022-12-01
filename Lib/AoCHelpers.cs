@@ -1,37 +1,36 @@
-﻿using CsvHelper;
-using CsvHelper.Configuration;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using CsvHelper;
+using CsvHelper.Configuration;
 
-namespace adventofcode.Lib
+namespace adventofcode.Lib;
+
+public static class AoCHelpers
 {
-    public static class AoCHelpers
+    public static IEnumerable<T> ReadLinesToType<T>(this string s) where T : IConvertible
     {
-        public static IEnumerable<T> ReadLinesToType<T>(this string s) where T : IConvertible
-        {
-            string line;
-            using var sr = new StringReader(s);
-            while ((line = sr.ReadLine()) != null)
-                yield return (T)Convert.ChangeType(line, typeof(T));
-        } 
+        string line;
+        using var sr = new StringReader(s);
+        while ((line = sr.ReadLine()) != null)
+            yield return (T)Convert.ChangeType(line, typeof(T));
+    }
 
-        public static IList<T> ReadLinesToObject<T>(this string s, string fieldDelimiter = " ")
+    public static IList<T> ReadLinesToObject<T>(this string s, string fieldDelimiter = " ")
+    {
+        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                Delimiter = fieldDelimiter,
-                WhiteSpaceChars = Array.Empty<char>(),
-                HasHeaderRecord = false,
-                TrimOptions = TrimOptions.None,
-                MissingFieldFound = args => { }
-            };
+            Delimiter = fieldDelimiter,
+            WhiteSpaceChars = Array.Empty<char>(),
+            HasHeaderRecord = false,
+            TrimOptions = TrimOptions.None,
+            MissingFieldFound = args => { }
+        };
 
-            using var reader = new StringReader(s);
-            using var csv = new CsvReader(reader, config);
-            return csv.GetRecords<T>().ToList();
-        }
+        using var reader = new StringReader(s);
+        using var csv = new CsvReader(reader, config);
+        return csv.GetRecords<T>().ToList();
     }
 }

@@ -1,10 +1,12 @@
 using AdventOfCode.Model;
 
-namespace AdventOfCode.Generator
+namespace AdventOfCode.Generator;
+
+internal class SolutionTemplateGenerator
 {
-    class SolutionTemplateGenerator {
-        public string Generate(Problem problem) {
-            return $@"using System;
+    public string Generate(Problem problem)
+    {
+        return $@"using System;
              |using System.Collections.Generic;
              |using System.Collections.Immutable;
              |using System.Linq;
@@ -26,6 +28,5 @@ namespace AdventOfCode.Generator
              |  }}
              |}}
              |".StripMargin();
-        }
     }
 }
