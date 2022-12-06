@@ -72,7 +72,9 @@ internal static class SolverExtensions
 
     public static string WorkingDir(int year)
     {
-        return Path.Combine("c:\\adventofcode", year.ToString());
+        string workingDirectory = Environment.CurrentDirectory;
+        string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
+        return Path.Combine(projectDirectory, year.ToString());
     }
 
     public static string WorkingDir(int year, int day)
