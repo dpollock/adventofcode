@@ -12,10 +12,30 @@ public static class AoCHelpers
 {
     public static IEnumerable<T> ReadLinesToType<T>(this string s) where T : IConvertible
     {
-        string line;
         using var sr = new StringReader(s);
-        while ((line = sr.ReadLine()) != null)
+        while (sr.ReadLine() is { } line)
             yield return (T)Convert.ChangeType(line, typeof(T));
+    }
+
+    public static IEnumerable<List<T>> ReadLinesToGroupsOfType<T>(this string s) where T : IConvertible
+    {
+        var result = new List<List<T>>();
+        var currentGroup = new List<T>();
+        using var sr = new StringReader(s);
+        while (sr.ReadLine() is { } line)
+        {
+            if (string.IsNullOrEmpty(line))
+            {
+                result.Add(currentGroup);
+                currentGroup = new List<T>();
+            }
+            else
+            {
+                currentGroup.Add((T)Convert.ChangeType(line, typeof(T)));
+            }
+        }
+
+        return result;
     }
 
     public static IList<T> ReadLinesToObject<T>(this string s, string fieldDelimiter = " ")
