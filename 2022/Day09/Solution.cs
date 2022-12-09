@@ -11,103 +11,69 @@ internal class Solution : ISolver
     public object PartOne(string input)
     {
         var ropeSize = 2;
-        var size = 600;
-        var grid = BuildGrid(size);
-
-        var ropePositions = BuildRopePositions(grid, size, ropeSize);
-
         var moves = input.ReadLinesToObject<Move>();
 
-        ProcessMoves(moves, ropePositions, grid);
+        var knots = Enumerable.Range(0, ropeSize).Select(_ => new Point(0, 0)).ToList();
+        var uniqueTailPositions = new HashSet<Point> { knots[^1] };
 
-        var visited = grid.Sum(x => x.Count(t => t.TailVisited > 0));
+        ProcessMovesV2(moves, knots, uniqueTailPositions);
+
+        var visited = uniqueTailPositions.Count;
         return visited;
     }
 
     public object PartTwo(string input)
     {
         var ropeSize = 10;
-        var size = 600;
-        var grid = BuildGrid(size);
-
-        var ropePositions = BuildRopePositions(grid, size, ropeSize);
-
         var moves = input.ReadLinesToObject<Move>();
 
-        ProcessMoves(moves, ropePositions, grid);
+        var knots = Enumerable.Range(0, ropeSize).Select(_ => new Point(0, 0)).ToList();
+        var uniqueTailPositions = new HashSet<Point> { knots[^1] };
 
-        var visited = grid.Sum(x => x.Count(t => t.TailVisited > 0));
+        ProcessMovesV2(moves, knots, uniqueTailPositions);
+
+        var visited = uniqueTailPositions.Count;
         return visited;
     }
 
-    private static void ProcessMoves(IList<Move> moves, LinkedList<Grid> ropePositions, Grid[][] grid)
+    private static void ProcessMovesV2(IList<Move> moves, List<Point> knots, HashSet<Point> uniqueTailPositions)
     {
         foreach (var move in moves)
             for (var i = 0; i < move.Steps; i++)
             {
-                var head = ropePositions.First;
-                
-                head.Value = move.Dir switch
+                var headIndex = 0;
+
+                knots[headIndex] = Move(knots[headIndex], move.Direction);
+
+                for (var tailIndex = 1; tailIndex < knots.Count; ++tailIndex)
                 {
-                    "U" => grid[head.Value.Row + 1][head.Value.Col],
-                    "D" => grid[head.Value.Row - 1][head.Value.Col],
-                    "L" => grid[head.Value.Row][head.Value.Col - 1],
-                    "R" => grid[head.Value.Row][head.Value.Col + 1],
-                    _ => head.Value
-                };
+                    headIndex = tailIndex - 1;
+                    var diffX = knots[headIndex].X - knots[tailIndex].X;
+                    var diffY = knots[headIndex].Y - knots[tailIndex].Y;
 
-                var processKnot = head;
-                while (processKnot?.Next != null)
-                {
-                    var nextValue = processKnot.Next.Value;
-                    var nextValueCol = processKnot.Value.Col - nextValue.Col;
-                    var nextValueRow = processKnot.Value.Row - nextValue.Row;
-
-                    if (Math.Abs(nextValueRow) == 2 || Math.Abs(nextValueCol) == 2)
-                    {
-                        processKnot.Next.Value = grid[nextValue.Row + Math.Sign(nextValueRow)][nextValue.Col + Math.Sign(nextValueCol)];
-                    }
-
-                    processKnot = processKnot.Next;
+                    if (Math.Abs(diffX) == 2 || Math.Abs(diffY) == 2)
+                        knots[tailIndex] = new Point(knots[tailIndex].X + Math.Sign(diffX),
+                            knots[tailIndex].Y + Math.Sign(diffY));
                 }
 
-                if (ropePositions.Last != null) ropePositions.Last.Value.TailVisited++;
+                uniqueTailPositions.Add(knots[^1]);
             }
     }
 
-    private static LinkedList<Grid> BuildRopePositions(Grid[][] grid, int size, int ropeSize)
+
+    private static Point Move(Point original, string direction)
     {
-        var startPosition = grid[size / 2][size / 2];
-        var ropePositions = new LinkedList<Grid>();
-        for (var i = 0; i < ropeSize; i++) ropePositions.AddFirst(startPosition);
-
-        return ropePositions;
-    }
-
-    private static Grid[][] BuildGrid(int size)
-    {
-        var grid = new Grid[size][];
-
-        for (var i = 0; i < size; i++)
+        return direction switch
         {
-            grid[i] = new Grid[size];
-            for (var j = 0; j < size; j++)
-                grid[i][j] = new Grid
-                {
-                    Row = i,
-                    Col = j
-                };
-        }
-
-        return grid;
+            "U" => original with { Y = original.Y + 1 },
+            "D" => original with { Y = original.Y - 1 },
+            "L" => original with { X = original.X - 1 },
+            "R" => original with { X = original.X + 1 },
+            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Unsupported direction")
+        };
     }
 }
 
-internal record Move(string Dir, int Steps);
+internal record Move(string Direction, int Steps);
 
-internal class Grid
-{
-    public int Row { get; init; }
-    public int Col { get; init; }
-    public int TailVisited { get; set; }
-}
+internal record Point(int X, int Y);
