@@ -17,6 +17,13 @@ namespace AdventOfCode;
 
 internal class Updater
 {
+    private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
+
+    public Updater(Microsoft.Extensions.Configuration.IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
     public async Task Update(int year, int day)
     {
         var session = GetSession();
@@ -55,10 +62,7 @@ internal class Updater
 
     private string GetSession()
     {
-        if (!Environment.GetEnvironmentVariables().Contains("SESSION"))
-            throw new Exception("Specify SESSION environment variable.");
-
-        return Environment.GetEnvironmentVariable("SESSION");
+        return _configuration["SessionKey"];
     }
 
     private IBrowsingContext GetContext()

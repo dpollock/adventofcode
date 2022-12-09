@@ -1,8 +1,16 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using AdventOfCode;
+using Microsoft.Extensions.Configuration;
+
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile($"appsettings.json")
+    .AddUserSecrets<Program>()
+    .Build();
 
 var tsolvers = Assembly.GetEntryAssembly()!.GetTypes()
     .Where(t => t.GetTypeInfo().IsClass && typeof(ISolver).IsAssignableFrom(t))
@@ -14,13 +22,13 @@ var action =
     {
         var year = int.Parse(m[1]);
         var day = int.Parse(m[2]);
-        return () => new Updater().Update(year, day).Wait();
+        return () => new Updater(configuration).Update(year, day).Wait();
     }) ??
     Command(args, Args("update", "today"), m =>
     {
         var dt = DateTime.UtcNow;
         if (dt is { Month: 12, Day: >= 1 and <= 25 })
-            return () => new Updater().Update(dt.Year, dt.Day).Wait();
+            return () => new Updater(configuration).Update(dt.Year, dt.Day).Wait();
         throw new Exception("Event is not active. This option works in Dec 1-25 only)");
     }) ??
     Command(args, Args("upload", "([0-9]+)/([0-9]+)"), m =>
@@ -33,7 +41,7 @@ var action =
                 SolverExtensions.Year(tsolver) == year &&
                 SolverExtensions.Day(tsolver) == day);
 
-            new Updater().Upload(GetSolvers(tsolver)[0]).Wait();
+            new Updater(configuration).Upload(GetSolvers(tsolver)[0]).Wait();
         };
     }) ??
     Command(args, Args("upload", "today"), m =>
@@ -46,7 +54,7 @@ var action =
                 SolverExtensions.Day(tsolver) == dt.Day);
 
             return () =>
-                new Updater().Upload(GetSolvers(tsolver)[0]).Wait();
+                new Updater(configuration).Upload(GetSolvers(tsolver)[0]).Wait();
         }
 
         throw new Exception("Event is not active. This option works in Dec 1-25 only)");
