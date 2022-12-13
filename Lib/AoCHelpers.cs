@@ -5,11 +5,41 @@ using System.IO;
 using System.Linq;
 using CsvHelper;
 using CsvHelper.Configuration;
+using SuperLinq;
 
 namespace adventofcode.Lib;
 
 public static class AoCHelpers
 {
+    public static readonly IReadOnlyList<(int x, int y)> Neighbors =
+        new (int x, int y)[] { (0, 1), (0, -1), (1, 0), (-1, 0) };
+
+    public static IEnumerable<(int x, int y)> GetCartesianNeighbors(this (int x, int y) p)
+    {
+        return Neighbors.Select(d => (p.x + d.x, p.y + d.y));
+    }
+
+    public static IEnumerable<(int x, int y)> GetCartesianNeighbors<T>(
+        this (int x, int y) p,
+        IReadOnlyList<IReadOnlyList<T>> map)
+    {
+        return p.GetCartesianNeighbors()
+            .Where(q =>
+                q.y >= 0 && q.y < map.Count
+                         && q.x >= 0 && q.x < map[q.y].Count);
+    }
+
+    public static char[][] GetCharMap(this string input)
+    {
+        return input.Segment(b => b == '\n')
+            .Select(l => l
+                .SkipWhile(b => b == '\n')
+                .Select(b => b)
+                .ToArray())
+            .Where(l => l.Length > 0)
+            .ToArray();
+    }
+
     public static IEnumerable<T> ReadLinesToType<T>(this string s) where T : IConvertible
     {
         using var sr = new StringReader(s);
@@ -23,7 +53,6 @@ public static class AoCHelpers
         var currentGroup = new List<T>();
         using var sr = new StringReader(s);
         while (sr.ReadLine() is { } line)
-        {
             if (string.IsNullOrEmpty(line))
             {
                 result.Add(currentGroup);
@@ -33,7 +62,6 @@ public static class AoCHelpers
             {
                 currentGroup.Add((T)Convert.ChangeType(line, typeof(T)));
             }
-        }
 
         return result;
     }
