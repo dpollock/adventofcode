@@ -11,8 +11,17 @@ namespace adventofcode.Lib;
 
 public static class AoCHelpers
 {
+    public static readonly IReadOnlyList<(int x, int y, int z)> Neighbors3D =
+        new (int x, int y, int z)[] { (0, 1, 0), (0, -1, 0), (1, 0, 0), (-1, 0, 0), (0, 0, -1), (0, 0, 1) };
+
     public static readonly IReadOnlyList<(int x, int y)> Neighbors =
         new (int x, int y)[] { (0, 1), (0, -1), (1, 0), (-1, 0) };
+
+
+    public static IEnumerable<(int x, int y, int z)> GetCartesianNeighbors(this (int x, int y, int z) p)
+    {
+        return Neighbors3D.Select(d => (p.x + d.x, p.y + d.y, p.z + d.z));
+    }
 
     public static IEnumerable<(int x, int y)> GetCartesianNeighbors(this (int x, int y) p)
     {
