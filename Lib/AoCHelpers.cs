@@ -90,4 +90,12 @@ public static class AoCHelpers
         using var csv = new CsvReader(reader, config);
         return csv.GetRecords<T>().ToList();
     }
+
+
+    public static IEnumerable<T> ReadLines<T>(this string s, Func<string,T> converter)
+    {
+        using var sr = new StringReader(s);
+        while (sr.ReadLine() is { } line)
+            yield return converter(line);
+    }
 }
