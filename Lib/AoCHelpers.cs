@@ -17,22 +17,44 @@ public static class AoCHelpers
     public static readonly IReadOnlyList<(int x, int y)> Neighbors =
         new (int x, int y)[] { (0, 1), (0, -1), (1, 0), (-1, 0) };
 
+    public static readonly IReadOnlyList<(int x, int y)> SurroundingNeighbors =
+        new (int x, int y)[] { (0, 1), (0, -1), (1, 0), (-1, 0), (-1, -1), (1, -1), (-1, 1), (1, 1), };
+
 
     public static IEnumerable<(int x, int y, int z)> GetCartesianNeighbors(this (int x, int y, int z) p)
     {
         return Neighbors3D.Select(d => (p.x + d.x, p.y + d.y, p.z + d.z));
     }
 
-    public static IEnumerable<(int x, int y)> GetCartesianNeighbors(this (int x, int y) p)
+    public static IEnumerable<(int x, int y)> GetCartesianNeighbors(this (int x, int y) p, bool includeDiagonal = false)
     {
-        return Neighbors.Select(d => (p.x + d.x, p.y + d.y));
+        if (includeDiagonal)
+        {
+            return SurroundingNeighbors.Select(d => (p.x + d.x, p.y + d.y));
+        }
+        else
+        {
+            return Neighbors.Select(d => (p.x + d.x, p.y + d.y));
+        }
+
     }
+
+    public static IEnumerable<(int x, int y)> GetCartesianNeighbors(
+        this (int x, int y) p,
+        int maxX, int maxY, bool includeDiagonal = false)
+    {
+        return p.GetCartesianNeighbors(includeDiagonal)
+            .Where(q =>
+                q.y >= 0 && q.y <= maxY
+                         && q.x >= 0 && q.x <= maxX);
+    }
+
 
     public static IEnumerable<(int x, int y)> GetCartesianNeighbors<T>(
         this (int x, int y) p,
-        IReadOnlyList<IReadOnlyList<T>> map)
+        IReadOnlyList<IReadOnlyList<T>> map, bool includeDiagonal = false)
     {
-        return p.GetCartesianNeighbors()
+        return p.GetCartesianNeighbors(includeDiagonal)
             .Where(q =>
                 q.y >= 0 && q.y < map.Count
                          && q.x >= 0 && q.x < map[q.y].Count);
@@ -92,7 +114,7 @@ public static class AoCHelpers
     }
 
 
-    public static IEnumerable<T> ReadLines<T>(this string s, Func<string,T> converter)
+    public static IEnumerable<T> ReadLines<T>(this string s, Func<string, T> converter)
     {
         using var sr = new StringReader(s);
         while (sr.ReadLine() is { } line)
