@@ -94,6 +94,9 @@ public static class AoCHelpers
                 currentGroup.Add((T)Convert.ChangeType(line, typeof(T)));
             }
 
+        if (currentGroup.Any())
+            result.Add(currentGroup);
+
         return result;
     }
 
