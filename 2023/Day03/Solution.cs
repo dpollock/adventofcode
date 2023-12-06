@@ -1,3 +1,5 @@
+using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using adventofcode.Lib;
@@ -7,41 +9,90 @@ namespace AdventOfCode.Y2023.Day03
     [ProblemName("Gear Ratios")]
     class Solution : ISolver
     {
+      
+
         public object PartOne(string input)
         {
-            var lines = input.ReadLinesToType<string>().ToList();
+            //return FasterVersion(input).Item1;
+            var (numbers, symbols) = ParseInput(input);
 
-            var numbers = new List<(int, int, int number)>();
-            var symbols = new List<(int, int, char symbol)>();
-
-            foreach (var (line, index) in lines.Select((line, index) => (line, index)))
-            {
-                numbers.AddRange(ParseLineForNumbers(line, index));
-                symbols.AddRange(ParseLineForSymbols(line, index));
-            }
-
-            var result = symbols.SelectMany(s => PartsTouchedBySymbol(s, numbers)).Distinct().ToList();
+            var result = symbols.SelectMany(s => PartsTouchedBySymbol(s, numbers)).ToList();
             var sum = result.Sum(x => x.number);
             return sum;
         }
 
-        public object PartTwo(string input)
+        private static (int, int) FasterVersion(string l)
         {
-            var lines = input.ReadLinesToType<string>().ToList();
+            var part1 = 0;
+            var part2 = 0;
 
-            var numbers = new List<(int, int, int number)>();
-            var symbols = new List<(int, int, char symbol)>();
+            var input = l.AsSpan();
+            var size = input.IndexOf('\n') + 1;
+            var search = SearchValues.Create("\n.0123456789");
+            var offset = 0;
+            int index;
 
-            foreach (var (line, index) in lines.Select((line, index) => (line, index)))
+            while ((index = input[offset..].IndexOfAnyExcept(search)) != -1)
             {
-                numbers.AddRange(ParseLineForNumbers(line, index));
-                symbols.AddRange(ParseLineForSymbols(line, index));
+                offset += index;
+
+                var (y, x) = Math.DivRem(offset, size);
+                var isGear = input[offset] == '*';
+                var leftNumber = 0;
+
+                offset += 1;
+
+                for (int y2 = y - 1; y2 <= y + 1; y2++)
+                {
+                    for (int x2 = x - 1; x2 <= x + 1; x2++)
+                    {
+                        if (!char.IsAsciiDigit(input[y2 * size + x2]))
+                        {
+                            continue;
+                        }
+
+                        while (--x2 >= 0 && char.IsAsciiDigit(input[y2 * size + x2]))
+                        {
+                            //
+                        }
+
+                        var number = 0;
+
+                        do
+                        {
+                            number = number * 10 + (input[y2 * size + ++x2] - '0');
+                        } while (char.IsAsciiDigit(input[y2 * size + x2 + 1]));
+
+                        part1 += number;
+
+                        if (isGear)
+                        {
+                            if (leftNumber > 0)
+                            {
+                                part2 += leftNumber * number;
+                            }
+                            else
+                            {
+                                leftNumber = number;
+                            }
+                        }
+                    }
+                }
             }
 
+            return new(part1, part2);
+        }
+
+
+        public object PartTwo(string input)
+        {
+            //return FasterVersion(input).Item2;
+            var (numbers, symbols) = ParseInput(input);
+
             var result = symbols.Where(s => s.symbol == '*')
-                .GroupBy(s=>s)
-                .Select(grp=>new {Sym = grp.Key, Parts = PartsTouchedBySymbol(grp.Key, numbers).ToList() })
-                .Where(g=> g.Parts.Count == 2)
+                .GroupBy(s => s)
+                .Select(grp => new { Sym = grp.Key, Parts = PartsTouchedBySymbol(grp.Key, numbers).ToList() })
+                .Where(g => g.Parts.Count == 2)
                 .ToList();
 
             return result.Sum(x => x.Parts[0].number * x.Parts[1].number);
@@ -76,6 +127,22 @@ namespace AdventOfCode.Y2023.Day03
                         yield return part;
                 }
             }
+        }
+
+        private (List<(int, int, int number)> numbers, List<(int, int, char symbol)> symbols) ParseInput(string input)
+        {
+            var lines = input.ReadLinesToType<string>().ToList();
+
+            var numbers = new List<(int, int, int number)>();
+            var symbols = new List<(int, int, char symbol)>();
+
+            foreach (var (line, index) in lines.Select((line, index) => (line, index)))
+            {
+                numbers.AddRange(ParseLineForNumbers(line, index));
+                symbols.AddRange(ParseLineForSymbols(line, index));
+            }
+
+            return (numbers, symbols);
         }
 
         private static IEnumerable<(int row, int col, int number)> ParseLineForNumbers(string line, int lineNum)
