@@ -12,6 +12,7 @@ internal class SolutionTemplateGenerator
              |using System.Linq;
              |using System.Text.RegularExpressions;
              |using System.Text;
+             |using adventofcode.Lib;
              |
              |namespace AdventOfCode.Y{problem.Year}.Day{problem.Day.ToString("00")}
              |{{
@@ -19,10 +20,12 @@ internal class SolutionTemplateGenerator
              |  class Solution : ISolver {{
              |
              |        public object PartOne(string input) {{
+             |            var lines = input.ReadLinesToType<string>().ToList();
              |            return 0;
              |        }}
              |
              |        public object PartTwo(string input) {{
+             |            var lines = input.ReadLinesToType<string>().ToList();
              |            return 0;
              |     }}
              |  }}

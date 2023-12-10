@@ -9,6 +9,13 @@ using SuperLinq;
 
 namespace adventofcode.Lib;
 
+ public enum Direction
+    {
+        North,
+        South,
+        East,
+        West
+    }
 public static class AoCHelpers
 {
     public static readonly IReadOnlyList<(int x, int y, int z)> Neighbors3D =
@@ -59,6 +66,32 @@ public static class AoCHelpers
                 q.y >= 0 && q.y < map.Count
                          && q.x >= 0 && q.x < map[q.y].Count);
     }
+
+    public static (int x, int y)? GetNeighborInDirection<T>(
+        this (int x, int y) p, Direction direction,
+        IReadOnlyList<IReadOnlyList<T>> map)
+    {
+        var neighbors = p.GetCartesianNeighbors(false)
+            .Where(q =>
+                q.y >= 0 && q.y < map.Count
+                         && q.x >= 0 && q.x < map[q.y].Count);
+
+        switch (direction)
+        {
+            case Direction.North:
+                return neighbors.FirstOrDefault(q => q.y == p.y - 1);
+            case Direction.South:
+                return neighbors.FirstOrDefault(q => q.y == p.y + 1);
+            case Direction.East:
+                return neighbors.FirstOrDefault(q => q.x == p.x + 1);
+            case Direction.West:
+                return neighbors.FirstOrDefault(q => q.x == p.x - 1);
+        }
+
+        return null;
+    }
+
+   
 
     public static char[][] GetCharMap(this string input)
     {
