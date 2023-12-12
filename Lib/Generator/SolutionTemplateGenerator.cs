@@ -8,26 +8,28 @@ internal class SolutionTemplateGenerator
     {
         return $@"using System;
              |using System.Collections.Generic;
-             |using System.Collections.Immutable;
              |using System.Linq;
-             |using System.Text.RegularExpressions;
-             |using System.Text;
              |using adventofcode.Lib;
              |
-             |namespace AdventOfCode.Y{problem.Year}.Day{problem.Day.ToString("00")}
+             |namespace AdventOfCode.Y{problem.Year}.Day{problem.Day:00}
              |{{
              |  [ProblemName(""{problem.Title}"")]      
              |  class Solution : ISolver {{
              |
-             |        public object PartOne(string input) {{
+             |       public (long, long) Solve(string input)
+             |        {{
              |            var lines = input.ReadLinesToType<string>().ToList();
-             |            return 0;
+             |       
+             |            var part1 = 0L;
+             |            var part2 = 0L;
+             |            foreach (var line in lines)
+             |            {{
+             |               
+             |            }}
+             |       
+             |       
+             |            return (part1, part2);
              |        }}
-             |
-             |        public object PartTwo(string input) {{
-             |            var lines = input.ReadLinesToType<string>().ToList();
-             |            return 0;
-             |     }}
              |  }}
              |}}
              |".StripMargin();

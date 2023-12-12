@@ -19,22 +19,24 @@ internal class ProblemName : Attribute
 
 internal interface ISolver
 {
-    object PartOne(string input);
+    object PartOne(string input)
+    {
+        return null;
+    }
 
     object PartTwo(string input)
     {
         return null;
     }
+
+    (long, long) Solve(string input)
+    {
+        return (long.Parse(PartOne(input).ToString() ?? "0"), long.Parse(PartTwo(input).ToString() ?? "0"));
+    }
 }
 
 internal static class SolverExtensions
 {
-    public static IEnumerable<object> Solve(this ISolver solver, string input)
-    {
-        yield return solver.PartOne(input);
-        var res = solver.PartTwo(input);
-        if (res != null) yield return res;
-    }
 
     public static string GetName(this ISolver solver)
     {
@@ -110,45 +112,53 @@ internal class Runner
     public static SolverResult RunSolver(ISolver solver)
     {
         var workingDir = solver.WorkingDir();
-        var indent = "    ";
-        Write(ConsoleColor.White, $"{indent}{solver.DayName()}: {solver.GetName()}");
+        Write(ConsoleColor.White, $"\t{solver.DayName()}: {solver.GetName()}");
         WriteLine();
-        var dir = workingDir;
         var file = Path.Combine(workingDir, "input.in");
         var refoutFile = file.Replace(".in", ".refout");
         var refout = File.Exists(refoutFile) ? File.ReadAllLines(refoutFile) : null;
         var input = GetNormalizedInput(file);
-        var iline = 0;
         var answers = new List<string>();
         var errors = new List<string>();
         var stopwatch = Stopwatch.StartNew();
-        foreach (var line in solver.Solve(input))
-        {
-            var ticks = stopwatch.ElapsedTicks;
-            answers.Add(line.ToString());
-            var (statusColor, status, err) =
-                refout == null || refout.Length <= iline ? (ConsoleColor.Cyan, "?", null) :
-                refout[iline] == line.ToString() ? (ConsoleColor.DarkGreen, "✓", null) :
-                (ConsoleColor.Red, "X",
-                    $"{solver.DayName()}: In line {iline + 1} expected '{refout[iline]}' but found '{line}'");
 
-            if (err != null) errors.Add(err);
+        var (part1, part2) = solver.Solve(input);
+        var ticks = stopwatch.ElapsedTicks;
 
-            Write(statusColor, $"{indent}  {status}");
-            Console.Write($" {line} ");
-            var diff = ticks * 1000.0 / Stopwatch.Frequency;
+        if (part1 != 0) answers.Add(part1.ToString());
+        if (part2 != 0) answers.Add(part2.ToString());
 
-            WriteLine(
-                diff > 1000 ? ConsoleColor.Red :
-                diff > 500 ? ConsoleColor.Yellow :
-                ConsoleColor.DarkGreen,
-                $"({diff.ToString("F3")} ms)"
-            );
-            iline++;
-            stopwatch.Restart();
-        }
+        CheckAnswerLocally(solver.DayName(), refout, 1, part1, out var status, out var err);
+        if (err != null) errors.Add(err);
+
+        CheckAnswerLocally(solver.DayName(), refout, 2, part2, out status, out err);
+        if (err != null) errors.Add(err);
+
+        var diff = ticks * 1000.0 / Stopwatch.Frequency;
+
+        WriteLine();
+        WriteLine(
+            diff > 1000 ? ConsoleColor.Red :
+            diff > 500 ? ConsoleColor.Yellow :
+            ConsoleColor.DarkGreen,
+            $"\t  ({diff:F3} ms)"
+        );
+        stopwatch.Restart();
 
         return new SolverResult(answers.ToArray(), errors.ToArray());
+    }
+
+    private static void CheckAnswerLocally(string name, string[] refout, int part, long answer, out string status,
+        out string err)
+    {
+        (var statusColor, status, err) =
+            refout == null || refout.Length <= part-1 ? (ConsoleColor.Cyan, "?", null) :
+            refout[part-1] == answer.ToString() ? (ConsoleColor.DarkGreen, "✓", null) :
+            (ConsoleColor.Red, "X",
+                $"{name}: In line {part} expected '{refout[part-1]}' but found '{answer}'");
+
+        Write(statusColor, $"\t{status}");
+        Console.WriteLine($" {answer} ");
     }
 
     public static void RunAll(params ISolver[] solvers)
