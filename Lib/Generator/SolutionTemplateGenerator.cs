@@ -18,7 +18,7 @@ internal class SolutionTemplateGenerator
              |
              |       public (long, long) Solve(string input)
              |        {{
-             |            var lines = input.ReadLinesToType<string>().ToList();
+             |            var lines = input.ReadLinesToType<string>();
              |       
              |            var part1 = 0L;
              |            var part2 = 0L;
@@ -29,6 +29,20 @@ internal class SolutionTemplateGenerator
              |       
              |       
              |            return (part1, part2);
+             |        }}
+             |  }}
+             |}}
+             |
+             |
+             |       public (long, long, long, long) SolveSample()
+             |        {{
+             |            var sample =
+             |              """"""
+             |              """""".ReadLinesToType<string>();
+             |              var part1 = 0;
+             |              var part2 = 0;
+             |
+             |              return (part1, part2, 0, 0);
              |        }}
              |  }}
              |}}

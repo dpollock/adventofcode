@@ -120,7 +120,7 @@ internal class Updater
             var content = new FormUrlEncodedContent(new[]
             {
                 new KeyValuePair<string, string>("level", level.ToString()),
-                new KeyValuePair<string, string>("answer", answer)
+                new KeyValuePair<string, string>("answer", answer.ToString())
             });
 
             cookieContainer.Add(GetBaseAddress(), new Cookie("session", GetSession()));

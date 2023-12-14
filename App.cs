@@ -48,7 +48,7 @@ var action =
     {
         var dt = DateTime.UtcNow;
         if (dt is { Month: 12, Day: >= 1 and <= 25 })
-        {
+        {   
             var tsolver = tsolvers.First(tsolver =>
                 SolverExtensions.Year(tsolver) == dt.Year &&
                 SolverExtensions.Day(tsolver) == dt.Day);

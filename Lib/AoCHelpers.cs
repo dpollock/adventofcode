@@ -104,6 +104,15 @@ public static class AoCHelpers
             .ToArray();
     }
 
+    public static char[][] ToCharGrid(this string input)
+    {
+        var lines = input.ReadLinesToType<string>().ToArray();
+        var platform = new char[lines.Length][];
+        for (var y = 0; y < lines.Length; y++)
+            platform[y] = lines[y].ToCharArray();
+        return platform;
+    }
+
     public static IEnumerable<T> ReadLinesToType<T>(this string s) where T : IConvertible
     {
         using var sr = new StringReader(s);

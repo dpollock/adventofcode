@@ -33,6 +33,11 @@ internal interface ISolver
     {
         return (long.Parse(PartOne(input).ToString() ?? "0"), long.Parse(PartTwo(input).ToString() ?? "0"));
     }
+
+    (long, long, long, long) SolveSample()
+    {
+        return (0, 0, 0, 0);
+    }
 }
 
 internal static class SolverExtensions
@@ -98,7 +103,7 @@ internal static class SolverExtensions
     }
 }
 
-internal record SolverResult(string[] answers, string[] errors);
+internal record SolverResult(long[] answers, string[] errors);
 
 internal class Runner
 {
@@ -109,6 +114,39 @@ internal class Runner
         return input;
     }
 
+    public static SolverResult RunSampleSolver(ISolver solver)
+    {
+        Write(ConsoleColor.White, $"\t{solver.DayName()}: (Sample) {solver.GetName()}");
+        WriteLine();
+        var errors = new List<string>();
+        var stopwatch = Stopwatch.StartNew();
+
+        var (part1, part2, part1Answer, part2Answer) = solver.SolveSample();
+        var ticks = stopwatch.ElapsedTicks;
+
+
+        long[] refout2 = { part1Answer, part2Answer };
+        long[] answers = { part1, part2 };
+        CheckAnswerLocally(solver.DayName(), refout2, 1, part1, out var status, out var err);
+        if (err != null) errors.Add(err);
+
+        CheckAnswerLocally(solver.DayName(), refout2, 2, part2, out status, out err);
+        if (err != null) errors.Add(err);
+
+        var diff = ticks * 1000.0 / Stopwatch.Frequency;
+
+        WriteLine();
+        WriteLine(
+            diff > 1000 ? ConsoleColor.Red :
+            diff > 500 ? ConsoleColor.Yellow :
+            ConsoleColor.DarkGreen,
+            $"\t  ({diff:F3} ms)"
+        );
+        stopwatch.Restart();
+
+        return new SolverResult(answers.ToArray(), errors.ToArray());
+    }
+
     public static SolverResult RunSolver(ISolver solver)
     {
         var workingDir = solver.WorkingDir();
@@ -116,17 +154,14 @@ internal class Runner
         WriteLine();
         var file = Path.Combine(workingDir, "input.in");
         var refoutFile = file.Replace(".in", ".refout");
-        var refout = File.Exists(refoutFile) ? File.ReadAllLines(refoutFile) : null;
+        var refout = File.Exists(refoutFile) ? File.ReadAllLines(refoutFile).Select(long.Parse).ToArray() : null;
         var input = GetNormalizedInput(file);
-        var answers = new List<string>();
         var errors = new List<string>();
         var stopwatch = Stopwatch.StartNew();
 
         var (part1, part2) = solver.Solve(input);
         var ticks = stopwatch.ElapsedTicks;
 
-        if (part1 != 0) answers.Add(part1.ToString());
-        if (part2 != 0) answers.Add(part2.ToString());
 
         CheckAnswerLocally(solver.DayName(), refout, 1, part1, out var status, out var err);
         if (err != null) errors.Add(err);
@@ -145,17 +180,17 @@ internal class Runner
         );
         stopwatch.Restart();
 
-        return new SolverResult(answers.ToArray(), errors.ToArray());
+        return new SolverResult(new[]{ part1, part2}, errors.ToArray());
     }
 
-    private static void CheckAnswerLocally(string name, string[] refout, int part, long answer, out string status,
+    private static void CheckAnswerLocally(string name, long[] refout, int part, long answer, out string status,
         out string err)
     {
         (var statusColor, status, err) =
-            refout == null || refout.Length <= part-1 ? (ConsoleColor.Cyan, "?", null) :
-            refout[part-1] == answer.ToString() ? (ConsoleColor.DarkGreen, "✓", null) :
+            refout == null || refout.Length <= part - 1 ? (ConsoleColor.Cyan, "?", null) :
+            refout[part - 1] == answer ? (ConsoleColor.DarkGreen, "✓", null) :
             (ConsoleColor.Red, "X",
-                $"{name}: In line {part} expected '{refout[part-1]}' but found '{answer}'");
+                $"{name}: In line {part} expected '{refout[part - 1]}' but found '{answer}'");
 
         Write(statusColor, $"\t{status}");
         Console.WriteLine($" {answer} ");
@@ -174,6 +209,10 @@ internal class Runner
                 lastYear = solver.Year();
             }
 
+            var sampleResult = RunSampleSolver(solver);
+            WriteLine();
+            errors.AddRange(sampleResult.errors);
+            WriteLine();
             var result = RunSolver(solver);
             WriteLine();
             errors.AddRange(result.errors);
