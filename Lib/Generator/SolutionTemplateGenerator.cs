@@ -30,8 +30,6 @@ internal class SolutionTemplateGenerator
              |       
              |            return (part1, part2);
              |        }}
-             |  }}
-             |}}
              |
              |
              |       public (long, long, long, long) SolveSample()
