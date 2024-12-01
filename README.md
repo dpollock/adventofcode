@@ -1,36 +1,14 @@
 
-# Advent of Code (2021-2022)
+# Advent of Code (2021-2024)
 C# solutions to the Advent of Code problems.
 Check out https://adventofcode.com.
 
-<a href="https://adventofcode.com"><img src="2022/calendar.svg" width="80%" /></a>
+<a href="https://adventofcode.com"><img src="2024/calendar.svg" width="80%" /></a>
 
-The goal is to keep my C# knowledge fresh and to follow the latest changes of the language.
-
-Everything is self contained. I don't use any libraries to make things short or predefined algorithms 
-to parameterize. Just stick to what .Net provides. Each problem is solved by plain C# classes without any 'base' to derive from.
-The solvers have different entry points for part 1 and 2. There is no local state, part 2 starts from scratch, 
-but code sharing between part 1 and 2 is important to me. (Unless it makes things hard to read.)
-
-I prefer to use functional style, local or anonymous functions, immutability and linq over the state manipulation 
-style of oop, but I'm not very strict about this. Whatever I see fit for the problem.
-
-One thing that you will not see much in C# projects is K&R indentation. Sorry about that...
-
-The way I solve the puzzles should be pretty consistent during an event but there are small changes over 
-the years as I find something new or forget about stuff I learned last year.
-
-I try to keep things tight and golf the solution to a certain level, but don't want to overgolf it. (Sometimes I fail.)
-
-There aren't many comments, but if I find that the solution is not straightforward, the algorithm has a name, or it is 
-using some special property of the input I might explain it in a line or two. 
-
-You can browse my solutions as they are or fork the repo, remove everything and use just the lib part to 
-start working on your own. The framework part is pretty stable and you get testing, scaffolding etc for free.
 
 ## Dependencies
 
-- This project is based on `.NET 6`  and `C# 10`. It should work on Windows, Linux and OS-X.
+- This project is based on `.NET 8`  and `C# 10`. It should work on Windows, Linux and OS-X.
 - `AngleSharp` is used for problem download.
 
 ## Running
@@ -72,13 +50,18 @@ set up your SESSION variable as above.
 
 
 ```
+           >
+### VS Code Tasks
+This project includes VS Code tasks for common operations:
 
-## Working in Visual Studio Code
-If you prefer, you can work directly in VSCode as well. 
- 
- Open the command Palette (⇧ ⌘ P), select `Tasks: Run Task` then e.g. `update today`.
+- **Run Solution**: Execute a specific day's solution
+- **Update Input**: Download input for a specific day
+- **Upload Solution**: Submit your answer for a specific day
 
- Work on part 1. Check the solution with the `upload today` task. Continue with part 2.
+To use these tasks:
+1. Open the Command Palette (Ctrl+Shift+P)
+2. Type 'Tasks: Run Task'
+3. Select the desired task
+4. Enter the year and day when prompted
 
- **Note:** this feature relies on the "Memento Inputs" extension to store your session cookie, you need 
- to set it up in advance from the Command Palette with `Install Extensions`.
+Note: For downloading inputs and uploading solutions, you'll need your session cookie from adventofcode.com

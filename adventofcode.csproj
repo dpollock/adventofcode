@@ -6,16 +6,16 @@
     <UserSecretsId>830ea0dd-2f27-48ad-b9d7-91682a29bd06</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="0.17.1" />
-    <PackageReference Include="AngleSharp.Css" Version="0.16.4" />
-    <PackageReference Include="CsvHelper" Version="30.0.1" />
+    <PackageReference Include="AngleSharp" Version="1.1.2" />
+    <PackageReference Include="AngleSharp.Css" Version="0.17.0" />
+    <PackageReference Include="CsvHelper" Version="33.0.1" />
     <PackageReference Include="Dijkstra.NET" Version="1.2.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.4.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
-    <PackageReference Include="morelinq" Version="3.3.2" />
-    <PackageReference Include="SuperLinq" Version="4.5.0" />
-    <PackageReference Include="System.Buffers" Version="4.5.1" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.11.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0" />
+    <PackageReference Include="morelinq" Version="4.3.0" />
+    <PackageReference Include="SuperLinq" Version="6.2.0" />
+    <PackageReference Include="System.Buffers" Version="4.6.0" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>

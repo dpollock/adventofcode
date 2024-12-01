@@ -80,8 +80,8 @@ internal static class SolverExtensions
     public static string WorkingDir(int year)
     {
         string workingDirectory = Environment.CurrentDirectory;
-        string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
-        return Path.Combine(projectDirectory, year.ToString());
+        // string projectDirectory = Directory.GetParent(workingDirectory).Parent.Parent.FullName;
+        return Path.Combine(workingDirectory, year.ToString());
     }
 
     public static string WorkingDir(int year, int day)
@@ -180,7 +180,7 @@ internal class Runner
         );
         stopwatch.Restart();
 
-        return new SolverResult(new[]{ part1, part2}, errors.ToArray());
+        return new SolverResult(new[] { part1, part2 }, errors.ToArray());
     }
 
     private static void CheckAnswerLocally(string name, long[] refout, int part, long answer, out string status,

@@ -29,6 +29,21 @@ internal class ProjectReadmeGenerator
            > ```
            > {Usage.Get()}
            > ```
+           >
+           > ### VS Code Tasks
+           > This project includes VS Code tasks for common operations:
+           > 
+           > - **Run Solution**: Execute a specific day's solution
+           > - **Update Input**: Download input for a specific day
+           > - **Upload Solution**: Submit your answer for a specific day
+           > 
+           > To use these tasks:
+           > 1. Open the Command Palette (Ctrl+Shift+P)
+           > 2. Type 'Tasks: Run Task'
+           > 3. Select the desired task
+           > 4. Enter the year and day when prompted
+           > 
+           > Note: For downloading inputs and uploading solutions, you'll need your session cookie from adventofcode.com
            > ".StripMargin("> ");
     }
 }
