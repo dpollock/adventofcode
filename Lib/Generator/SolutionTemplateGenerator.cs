@@ -35,8 +35,8 @@ internal class SolutionTemplateGenerator
              |       public (long, long, long, long) SolveSample()
              |        {{
              |            var sample =
-             |              """"""
-             |              """""".ReadLinesToType<string>();
+             |              """"
+             |              """".ReadLinesToType<string>();
              |              var part1 = 0;
              |              var part2 = 0;
              |
