@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using adventofcode.Lib;
 
@@ -8,65 +7,54 @@ namespace AdventOfCode.Y2024.Day02
   [ProblemName("Red-Nosed Reports")]
   class Solution : ISolver
   {
-
     public (long, long) Solve(string input)
     {
-      var lines = input.ReadLines(line => line.Split(' ').Select(int.Parse).ToList());
+      var data = input.ReadLines(line => line.Split(' ').Select(int.Parse).ToArray());
 
-      var part1 = CalculatePart1(lines);
-      var part2 = CalculatePart2(lines);
+      var part1 = data.Count(d => IsSafe(d, false) || IsSafe(d.Reverse().ToArray(), false));
+      var part2 = data.Count(d => IsSafe(d, true) || IsSafe(d.Reverse().ToArray(), true));
 
       return (part1, part2);
     }
 
-
     public (long, long, long, long) SolveSample()
     {
-      var lines =
+      var data =
         @"7 6 4 2 1
 1 2 7 8 9
 9 7 6 2 1
 1 3 2 4 5
 8 6 4 4 1
-1 3 6 7 9".ReadLines(line => line.Split(' ').Select(int.Parse).ToList());
-      var part1 = CalculatePart1(lines);
-      var part2 = CalculatePart2(lines);
+1 3 6 7 9".ReadLines(line => line.Split(' ').Select(int.Parse).ToArray());
+
+      var part1 = data.Count(d => IsSafe(d, false) || IsSafe(d.Reverse().ToArray(), false));
+      var part2 = data.Count(d => IsSafe(d, true) || IsSafe(d.Reverse().ToArray(), true));
 
       return (part1, part2, 2, 4);
     }
 
-    private long CalculatePart1(IEnumerable<List<int>> input)
+    private bool IsSafe(int[] d, bool canSkip)
     {
-      return input.Count(levels => IsSafe(levels, -1));
+      for (int i = 0; i < d.Length - 1; i++)
+      {
+        if (!(1 <= d[i] - d[i + 1] && d[i] - d[i + 1] <= 3))
+        {
+          if (canSkip)
+          {
+            // Try removing either current or next number
+            return new[] { i, i + 1 }.Any(j =>
+            {
+              var newArray = new int[d.Length - 1];
+              Array.Copy(d, 0, newArray, 0, j);
+              Array.Copy(d, j + 1, newArray, j, d.Length - j - 1);
+              return IsSafe(newArray, false);
+            });
+          }
+          return false;
+        }
+      }
+      return true;
     }
 
-
-    private long CalculatePart2(IEnumerable<List<int>> input)
-    {
-      return input.Count(levels =>
-          Enumerable.Range(-1, levels.Count + 1)
-                   .Any(index => IsSafe(levels.ToList(), index)));
-    }
-
-    private static bool IsSafe(List<int> levels, int skipIndex)
-    {
-      var sequence = skipIndex >= 0 && skipIndex < levels.Count
-          ? levels.Where((_, i) => i != skipIndex)
-          : levels;
-
-      var differences = sequence
-          .Zip(sequence.Skip(1), (a, b) => b - a)
-          .ToList();
-
-      if (differences.Count == 0 || differences[0] == 0)
-        return false;
-
-      return differences.All(diff => CheckIsValid(diff, Math.Sign(differences[0])));
-    }
-
-    private static bool CheckIsValid(int difference, int sign)
-    {
-      return Math.Abs(difference) is >= 1 and <= 3 && Math.Sign(difference) == sign;
-    }
   }
 }
