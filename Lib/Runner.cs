@@ -222,7 +222,7 @@ internal class Runner
 
         if (errors.Any()) WriteLine(ConsoleColor.Red, "Errors:\n" + string.Join("\n", errors));
 
-        Console.ReadLine();
+        // Console.ReadLine();
     }
 
     private static void WriteLine(ConsoleColor color = ConsoleColor.Gray, string text = "")
