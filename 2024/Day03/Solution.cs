@@ -8,39 +8,32 @@ namespace AdventOfCode.Y2024.Day03
   [ProblemName("Mull It Over")]
   class Solution : ISolver
   {
-    private static readonly Regex MulPattern = new(@"mul\((\d+),(\d+)\)|do\(\)|don't\(\)");
+    private static readonly Regex MulPattern = new(@"mul\((\d+),(\d+)\)|do\(\)|don't\(\)", RegexOptions.Compiled);
     public (long, long) Solve(string input)
     {
       var part1 = 0L;
       var part2 = 0L;
       var doMul = true;
-      var matches = MulPattern.Matches(input);
-      foreach (Match match in matches)
+      foreach (Match match in MulPattern.Matches(input))
       {
-        if (match.Value == "do()")
+        doMul = match.Value switch
         {
-          doMul = true;
-          continue;
-        }
-        if (match.Value == "don't()")
-        {
-          doMul = false;
-          continue;
-        }
+          "do()" => true,
+          "don't()" => false,
+          _ => doMul
+        };
 
-        var num1 = int.Parse(match.Groups[1].Value);
-        var num2 = int.Parse(match.Groups[2].Value);
-        part1 += num1 * num2;
-
-        if (doMul)
+        if (match.Value.StartsWith("mul"))
         {
-          part2 += num1 * num2;
+          var num1 = int.Parse(match.Groups[1].Value);
+          var num2 = int.Parse(match.Groups[2].Value);
+          var product = num1 * num2;
+          part1 += product;
+          if (doMul) part2 += product;
         }
       }
-
       return (part1, part2);
     }
-
 
     public (long, long, long, long) SolveSample()
     {
