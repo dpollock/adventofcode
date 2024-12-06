@@ -9,13 +9,17 @@ using SuperLinq;
 
 namespace adventofcode.Lib;
 
- public enum Direction
-    {
-        North,
-        South,
-        East,
-        West
-    }
+public enum Direction
+{
+    North,
+    South,
+    East,
+    West,
+    NorthWest,
+    NorthEast,
+    SouthWest,
+    SouthEast
+}
 public static class AoCHelpers
 {
     public static readonly IReadOnlyList<(int x, int y, int z)> Neighbors3D =
@@ -50,10 +54,12 @@ public static class AoCHelpers
         this (int x, int y) p,
         int maxX, int maxY, bool includeDiagonal = false)
     {
-        return p.GetCartesianNeighbors(includeDiagonal)
+        var neighbors = p.GetCartesianNeighbors(includeDiagonal);
+        var filtered = neighbors
             .Where(q =>
-                q.y >= 0 && q.y <= maxY
-                         && q.x >= 0 && q.x <= maxX);
+                q.y >= 0 && q.y < maxY
+                         && q.x >= 0 && q.x < maxX);
+        return filtered;
     }
 
 
@@ -67,15 +73,9 @@ public static class AoCHelpers
                          && q.x >= 0 && q.x < map[q.y].Count);
     }
 
-    public static (int x, int y)? GetNeighborInDirection<T>(
-        this (int x, int y) p, Direction direction,
-        IReadOnlyList<IReadOnlyList<T>> map)
+    public static (int x, int y)? GetNeighborInDirection<T>(this (int x, int y) p, IReadOnlyList<IReadOnlyList<T>> map, Direction direction)
     {
-        var neighbors = p.GetCartesianNeighbors(false)
-            .Where(q =>
-                q.y >= 0 && q.y < map.Count
-                         && q.x >= 0 && q.x < map[q.y].Count);
-
+        var neighbors = p.GetCartesianNeighbors(map.Count, map[0].Count, includeDiagonal: true);
         switch (direction)
         {
             case Direction.North:
@@ -86,12 +86,18 @@ public static class AoCHelpers
                 return neighbors.FirstOrDefault(q => q.x == p.x + 1);
             case Direction.West:
                 return neighbors.FirstOrDefault(q => q.x == p.x - 1);
+            case Direction.NorthWest:
+                return neighbors.FirstOrDefault(q => q.x == p.x - 1 && q.y == p.y - 1);
+            case Direction.NorthEast:
+                return neighbors.FirstOrDefault(q => q.x == p.x + 1 && q.y == p.y - 1);
+            case Direction.SouthWest:
+                return neighbors.FirstOrDefault(q => q.x == p.x - 1 && q.y == p.y + 1);
+            case Direction.SouthEast:
+                return neighbors.FirstOrDefault(q => q.x == p.x + 1 && q.y == p.y + 1);
+            default:
+                throw new ArgumentException($"Unknown direction: {direction}");
         }
-
-        return null;
     }
-
-   
 
     public static char[][] GetCharMap(this string input)
     {
