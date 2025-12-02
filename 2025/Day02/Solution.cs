@@ -4,7 +4,7 @@ public class Day02() : Solver(2025, 2, "")
 {
     public override (string input, long? expected1, long? expected2)[] Samples =>
     [
-        ("""11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124""", 1227775554, 0),
+        ("""11-22,95-115,998-1012,1188511880-1188511890,222220-222224,1698522-1698528,446443-446449,38593856-38593862,565653-565659,824824821-824824827,2121212118-2121212124""", 1227775554, 4174379265),
     ];
 
     public override long Part1(string input)
@@ -51,6 +51,55 @@ public class Day02() : Solver(2025, 2, "")
 
     public override long Part2(string input)
     {
-        return 0; // Part 2 not yet available
+        var ranges = Parse.Regex(input, @"(\d+)-(\d+)", m => (long.Parse(m.Groups[1].Value), long.Parse(m.Groups[2].Value)), ",");
+
+        // Use a HashSet to avoid counting the same invalid ID multiple times
+        // (e.g., 111111 could be "111" x2 or "11" x3 or "1" x6)
+        var invalidIds = new HashSet<long>();
+
+        foreach (var (start, end) in ranges)
+        {
+            CollectInvalidIdsInRange(start, end, invalidIds);
+        }
+        return invalidIds.Sum();
+    }
+
+    private static void CollectInvalidIdsInRange(long start, long end, HashSet<long> invalidIds)
+    {
+        int maxTotalDigits = end.ToString().Length;
+
+        // For each pattern length (1, 2, 3, ... digits)
+        for (int patternDigits = 1; patternDigits <= maxTotalDigits / 2; patternDigits++)
+        {
+            long minPattern = patternDigits == 1 ? 1 : (long)Math.Pow(10, patternDigits - 1);
+            long maxPattern = (long)Math.Pow(10, patternDigits) - 1;
+
+            for (long pattern = minPattern; pattern <= maxPattern; pattern++)
+            {
+                // Try repeating the pattern 2, 3, 4, ... times
+                for (int repeats = 2; repeats <= maxTotalDigits / patternDigits; repeats++)
+                {
+                    long invalidId = BuildRepeatedNumber(pattern, patternDigits, repeats);
+
+                    if (invalidId > end) break;
+
+                    if (invalidId >= start)
+                    {
+                        invalidIds.Add(invalidId);
+                    }
+                }
+            }
+        }
+    }
+
+    private static long BuildRepeatedNumber(long pattern, int patternDigits, int repeats)
+    {
+        long result = 0;
+        long multiplier = (long)Math.Pow(10, patternDigits);
+        for (int i = 0; i < repeats; i++)
+        {
+            result = result * multiplier + pattern;
+        }
+        return result;
     }
 }
