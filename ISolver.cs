@@ -8,6 +8,8 @@ public interface ISolver
 
     long Part1(string input);
     long Part2(string input);
+
+    (string input, long? expected1, long? expected2)[] Samples { get; }
 }
 
 public abstract class Solver(int year, int day, string name) : ISolver
@@ -18,4 +20,6 @@ public abstract class Solver(int year, int day, string name) : ISolver
 
     public abstract long Part1(string input);
     public virtual long Part2(string input) => -1;
+
+    public virtual (string input, long? expected1, long? expected2)[] Samples => [];
 }

@@ -19,7 +19,7 @@ public class AocClient(string sessionToken)
         return input.TrimEnd('\n');
     }
 
-    public async Task<string> GetProblemAsync(int year, int day)
+    public async Task<(string problem, int solvedParts)> GetProblemAsync(int year, int day)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, $"/{year}/day/{day}");
         request.Headers.Add("Cookie", $"session={sessionToken}");
@@ -29,15 +29,21 @@ public class AocClient(string sessionToken)
 
         var html = await response.Content.ReadAsStringAsync();
 
+        // Determine how many parts are solved
+        var solvedParts = 0;
+        if (html.Contains("Both parts of this puzzle are complete"))
+            solvedParts = 2;
+        else if (html.Contains("--- Part Two ---"))
+            solvedParts = 1;
+
         // Extract article content and convert to readable text
         var start = html.IndexOf("<article");
         var end = html.LastIndexOf("</article>") + "</article>".Length;
-        if (start < 0 || end <= start) return html;
+        if (start < 0 || end <= start) return (html, solvedParts);
 
         var articles = html[start..end];
 
-        // Basic HTML to text conversion
-        return ConvertHtmlToText(articles);
+        return (ConvertHtmlToText(articles), solvedParts);
     }
 
     private static string ConvertHtmlToText(string html)
