@@ -35,10 +35,10 @@ public static class Parse
     public static IEnumerable<T> Lines<T>(string input, Func<string, T> parser) =>
         Lines(input).Select(parser);
 
-    public static IEnumerable<T> Regex<T>(string input, string pattern, Func<Match, T> mapper)
+    public static IEnumerable<T> Regex<T>(string input, string pattern, Func<Match, T> mapper, string separator = "\n")
     {
         var regex = new Regex(pattern);
-        foreach (var line in Lines(input))
+        foreach (var line in input.Split(separator))
         {
             var match = regex.Match(line);
             if (match.Success)
