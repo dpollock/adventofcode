@@ -43,9 +43,11 @@ for (int i = 0; i < args.Length; i++)
 var solver = Runner.FindSolver(year, day);
 if (solver == null)
 {
-    Console.WriteLine($"No solver found for {year}/Day{day:D2}");
-    Console.WriteLine($"Create one at: {year}/Day{day:D2}/Solution.cs");
-    return 1;
+    Console.WriteLine($"No solver found for {year}/Day{day:D2} - creating scaffold...");
+    await Scaffold.CreateAsync(year, day, client);
+    Console.WriteLine($"Created {year}/Day{day:D2}/Solution.cs");
+    Console.WriteLine("Run again after implementing your solution.");
+    return 0;
 }
 
 await Runner.RunAsync(solver, client, submit);
