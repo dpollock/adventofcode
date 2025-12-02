@@ -13,6 +13,9 @@ public static class Runner
         var inputPath = GetInputPath(solver.Year, solver.Day);
         string input;
 
+        var dayDir = Path.GetDirectoryName(inputPath)!;
+        Directory.CreateDirectory(dayDir);
+
         if (File.Exists(inputPath))
         {
             input = await File.ReadAllTextAsync(inputPath);
@@ -22,19 +25,24 @@ public static class Runner
         {
             Console.WriteLine("Fetching input...");
             input = await client.GetInputAsync(solver.Year, solver.Day);
-            Directory.CreateDirectory(Path.GetDirectoryName(inputPath)!);
             await File.WriteAllTextAsync(inputPath, input);
         }
+
+        // Fetch/update problem text
+        var problemPath = Path.Combine(dayDir, "problem.md");
+        Console.WriteLine("Fetching problem...");
+        var problem = await client.GetProblemAsync(solver.Year, solver.Day);
+        await File.WriteAllTextAsync(problemPath, problem);
 
         // Part 1
         var sw = Stopwatch.StartNew();
         var result1 = solver.Part1(input);
         sw.Stop();
-        Console.WriteLine($"Part 1: {result1} ({sw.ElapsedMilliseconds}ms)");
+        PrintResult(1, result1, sw.ElapsedMilliseconds);
 
-        if (submit && result1.ToString() != "Not implemented")
+        if (submit && result1 > 0)
         {
-            var response = await client.SubmitAnswerAsync(solver.Year, solver.Day, 1, result1.ToString()!);
+            var response = await client.SubmitAnswerAsync(solver.Year, solver.Day, 1, result1.ToString());
             Console.WriteLine($"  {response}");
         }
 
@@ -42,11 +50,11 @@ public static class Runner
         sw.Restart();
         var result2 = solver.Part2(input);
         sw.Stop();
-        Console.WriteLine($"Part 2: {result2} ({sw.ElapsedMilliseconds}ms)");
+        PrintResult(2, result2, sw.ElapsedMilliseconds);
 
-        if (submit && result2.ToString() != "Not implemented")
+        if (submit && result2 > 0)
         {
-            var response = await client.SubmitAnswerAsync(solver.Year, solver.Day, 2, result2.ToString()!);
+            var response = await client.SubmitAnswerAsync(solver.Year, solver.Day, 2, result2.ToString());
             Console.WriteLine($"  {response}");
         }
 
@@ -69,4 +77,14 @@ public static class Runner
 
     private static string GetInputPath(int year, int day)
         => Path.Combine(Environment.CurrentDirectory, $"{year}", $"Day{day:D2}", "input.txt");
+
+    private static void PrintResult(int part, long result, long ms)
+    {
+        if (result < 0)
+            Console.WriteLine($"Part {part}: (not implemented)");
+        else if (result == 0)
+            Console.WriteLine($"Part {part}: 0 ({ms}ms) ⚠️  zero result - verify this is correct");
+        else
+            Console.WriteLine($"Part {part}: {result} ({ms}ms)");
+    }
 }
