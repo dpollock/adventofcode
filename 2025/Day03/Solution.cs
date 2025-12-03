@@ -23,26 +23,22 @@ public class Day03() : Solver(2025, 3, "")
     }
 
     private static long FindSumOfMaxJoltages(string input, int numberOfDigits)
-    {
-        var lines = Parse.IntGrid(input);
-        var sumOfMaxJoltages = 0L;
-        foreach (var line in lines)
-        {
-            var largestNumber = FindLargestNumberRecursively(line, numberOfDigits);
-            sumOfMaxJoltages += largestNumber;
-        }
-        return sumOfMaxJoltages;
-    }
+        => Parse.IntGrid(input).Sum(line => FindLargestNumber(line, numberOfDigits));
 
-    private static long FindLargestNumberRecursively(int[] line, int maxDigitsLength)
+    private static long FindLargestNumber(int[] line, int count)
     {
-        if (maxDigitsLength > line.Length || maxDigitsLength == 0)
+        long result = 0;
+        int start = 0;
+
+        for (int i = 0; i < count; i++)
         {
-            return 0L;
+            var segment = line.AsSpan(start, line.Length - count + i - start + 1);
+            int maxIdx = start + segment.IndexOf(segment.ToArray().Max());
+
+            result = result * 10 + line[maxIdx];
+            start = maxIdx + 1;
         }
 
-        var firstMax = line[..^(maxDigitsLength - 1)].Max();
-        var firstMaxIndex = Array.IndexOf(line, firstMax);
-        return (firstMax * (long)Math.Pow(10, maxDigitsLength - 1)) + FindLargestNumberRecursively(line[(firstMaxIndex + 1)..], maxDigitsLength - 1);
+        return result;
     }
 }
