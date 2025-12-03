@@ -65,10 +65,18 @@ public static class Runner
         }
 
         // Part 1
-        var sw = Stopwatch.StartNew();
-        var result1 = solver.Part1(input);
-        sw.Stop();
-        PrintResult(1, result1, sw.ElapsedMilliseconds, solvedParts >= 1);
+        solver.Part1(input); // Warmup
+        var times1 = new double[5];
+        var sw = new Stopwatch();
+        long result1 = 0;
+        for (int i = 0; i < 5; i++)
+        {
+            sw.Restart();
+            result1 = solver.Part1(input);
+            sw.Stop();
+            times1[i] = sw.Elapsed.TotalMilliseconds;
+        }
+        PrintResult(1, result1, times1.Average(), solvedParts >= 1);
 
         if (submit && result1 > 0 && solvedParts < 1)
         {
@@ -84,10 +92,17 @@ public static class Runner
         }
 
         // Part 2
-        sw.Restart();
-        var result2 = solver.Part2(input);
-        sw.Stop();
-        PrintResult(2, result2, sw.ElapsedMilliseconds, solvedParts >= 2);
+        solver.Part2(input); // Warmup
+        var times2 = new double[5];
+        long result2 = 0;
+        for (int i = 0; i < 5; i++)
+        {
+            sw.Restart();
+            result2 = solver.Part2(input);
+            sw.Stop();
+            times2[i] = sw.Elapsed.TotalMilliseconds;
+        }
+        PrintResult(2, result2, times2.Average(), solvedParts >= 2);
 
         if (submit && result2 > 0 && solvedParts < 2)
         {
@@ -115,14 +130,14 @@ public static class Runner
     private static string GetInputPath(int year, int day)
         => Path.Combine(Environment.CurrentDirectory, $"{year}", $"Day{day:D2}", "input.txt");
 
-    private static void PrintResult(int part, long result, long ms, bool alreadySolved)
+    private static void PrintResult(int part, long result, double ms, bool alreadySolved)
     {
         var solved = alreadySolved ? " ✓" : "";
         if (result < 0)
             Console.WriteLine($"Part {part}: (not implemented){solved}");
         else if (result == 0)
-            Console.WriteLine($"Part {part}: 0 ({ms}ms) ⚠️  zero result{solved}");
+            Console.WriteLine($"Part {part}: 0 ({ms:F3}ms) ⚠️  zero result{solved}");
         else
-            Console.WriteLine($"Part {part}: {result} ({ms}ms){solved}");
+            Console.WriteLine($"Part {part}: {result} ({ms:F3}ms){solved}");
     }
 }
