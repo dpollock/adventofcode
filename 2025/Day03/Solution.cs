@@ -14,30 +14,24 @@ public class Day03() : Solver(2025, 3, "")
 
     public override long Part1(string input)
     {
-        var lines = Parse.Lines(input, line => line.Select(c => int.Parse(c.ToString())).ToArray());
-        var sumOfMaxJoltages = 0;
-        foreach (var line in lines)
-        {
-            var firstMax = line[..^1].Max(); //look at all but the last digit
-            var firstMaxIndex = Array.IndexOf(line, firstMax);
-            var secondMax = line[(firstMaxIndex + 1)..].Max();
-
-            sumOfMaxJoltages += firstMax * 10 + secondMax;
-        }
-        return sumOfMaxJoltages;
+        return FindSumOfMaxJoltages(input, 2);
     }
 
     public override long Part2(string input)
     {
-        var lines = Parse.Lines(input, line => line.Select(c => int.Parse(c.ToString())).ToArray());
+        return FindSumOfMaxJoltages(input, 12);
+    }
+
+    private static long FindSumOfMaxJoltages(string input, int numberOfDigits)
+    {
+        var lines = Parse.IntGrid(input);
         var sumOfMaxJoltages = 0L;
         foreach (var line in lines)
         {
-            //find the largest number formed by 12 digits (not necessarily consecutive)
-            var largestNumber = FindLargestNumberRecursively(line, 12);
+            var largestNumber = FindLargestNumberRecursively(line, numberOfDigits);
             sumOfMaxJoltages += largestNumber;
         }
-        return sumOfMaxJoltages; //return the sum of the largest numbers
+        return sumOfMaxJoltages;
     }
 
     private static long FindLargestNumberRecursively(int[] line, int maxDigitsLength)
@@ -46,11 +40,9 @@ public class Day03() : Solver(2025, 3, "")
         {
             return 0L;
         }
-        else
-        {
-            var firstMax = line[..^(maxDigitsLength - 1)].Max();
-            var firstMaxIndex = Array.IndexOf(line, firstMax);
-            return (firstMax * (long)Math.Pow(10, maxDigitsLength - 1)) + FindLargestNumberRecursively(line[(firstMaxIndex + 1)..], maxDigitsLength - 1);
-        }
+
+        var firstMax = line[..^(maxDigitsLength - 1)].Max();
+        var firstMaxIndex = Array.IndexOf(line, firstMax);
+        return (firstMax * (long)Math.Pow(10, maxDigitsLength - 1)) + FindLargestNumberRecursively(line[(firstMaxIndex + 1)..], maxDigitsLength - 1);
     }
 }
