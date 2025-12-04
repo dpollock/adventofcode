@@ -18,57 +18,61 @@ public class Day04() : Solver(2025, 4, "")
         """, 13, 43),
     ];
 
+    private static bool IsAccessible(char[][] grid, int row, int col) =>
+        grid[row][col] == '@' && (row, col).Neighbors8(grid, c => c == '@').Count() < 4;
+
     public override long Part1(string input)
     {
-        var usableSpots = 0;
-        var lines = Parse.Grid(input);
-        for (int i = 0; i < lines.Length; i++)
-        {
-            for (int j = 0; j < lines[i].Length; j++)
-            {
-                var haveRolls = Grid.Neighbors8((i, j), lines).Where(n => lines[n.row][n.col] == '@').Count();
-                if (lines[i][j] == '@' && haveRolls < 4)
-                {
-                    usableSpots++;
-                }
-            }
-        }
-        return usableSpots;
+        var grid = Parse.Grid(input);
+        var count = 0;
+
+        for (int i = 0; i < grid.Length; i++)
+            for (int j = 0; j < grid[i].Length; j++)
+                if (IsAccessible(grid, i, j))
+                    count++;
+
+        return count;
     }
 
     public override long Part2(string input)
     {
         var grid = Parse.Grid(input);
+        var rows = grid.Length;
+        var cols = grid[0].Length;
         var totalRemoved = 0;
 
-        while (true)
-        {
-            var toRemove = new List<(int row, int col)>();
+        // Initial set of candidates - all accessible rolls
+        var candidates = new HashSet<(int row, int col)>();
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++)
+                if (IsAccessible(grid, i, j))
+                    candidates.Add((i, j));
 
-            for (int i = 0; i < grid.Length; i++)
+        while (candidates.Count > 0)
+        {
+            var toRemove = candidates.ToList();
+            candidates.Clear();
+            totalRemoved += toRemove.Count;
+
+            // First remove all cells from this wave
+            foreach (var (row, col) in toRemove)
+                grid[row][col] = '.';
+
+            // Then check neighbors for newly accessible cells
+            foreach (var (row, col) in toRemove)
             {
-                for (int j = 0; j < grid[i].Length; j++)
+                for (int dr = -1; dr <= 1; dr++)
                 {
-                    if (grid[i][j] == '@')
+                    for (int dc = -1; dc <= 1; dc++)
                     {
-                        var neighborRolls = (i, j).Neighbors8(grid).Count(n => grid[n.row][n.col] == '@');
-                        if (neighborRolls < 4)
-                        {
-                            toRemove.Add((i, j));
-                        }
+                        if (dr == 0 && dc == 0) continue;
+                        var nr = row + dr;
+                        var nc = col + dc;
+                        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && IsAccessible(grid, nr, nc))
+                            candidates.Add((nr, nc));
                     }
                 }
             }
-
-            if (toRemove.Count == 0)
-                break;
-
-            foreach (var (row, col) in toRemove)
-            {
-                grid[row][col] = '.';
-            }
-
-            totalRemoved += toRemove.Count;
         }
 
         return totalRemoved;

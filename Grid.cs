@@ -13,11 +13,11 @@ public static class Grid
     public static IEnumerable<(int row, int col)> Neighbors8(this (int row, int col) p) =>
         Offsets8.Select(o => (p.row + o.dr, p.col + o.dc));
 
-    public static IEnumerable<(int row, int col)> Neighbors4<T>(this (int row, int col) p, T[][] grid) =>
-        p.Neighbors4().Where(n => n.InBounds(grid));
+    public static IEnumerable<(int row, int col)> Neighbors4<T>(this (int row, int col) p, T[][] grid, Func<T, bool>? predicate = null) =>
+        p.Neighbors4().Where(n => n.InBounds(grid) && (predicate == null || predicate(grid[n.row][n.col])));
 
-    public static IEnumerable<(int row, int col)> Neighbors8<T>(this (int row, int col) p, T[][] grid) =>
-        p.Neighbors8().Where(n => n.InBounds(grid));
+    public static IEnumerable<(int row, int col)> Neighbors8<T>(this (int row, int col) p, T[][] grid, Func<T, bool>? predicate = null) =>
+        p.Neighbors8().Where(n => n.InBounds(grid) && (predicate == null || predicate(grid[n.row][n.col])));
 
     public static bool InBounds<T>(this (int row, int col) p, T[][] grid) =>
         p.row >= 0 && p.row < grid.Length && p.col >= 0 && p.col < grid[0].Length;
