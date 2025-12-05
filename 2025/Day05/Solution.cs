@@ -1,6 +1,6 @@
 namespace AdventOfCode.Y2025;
 
-public class Day05() : Solver(2025, 5, "")
+public class Day05() : Solver(2025, 5, "Cafeteria")
 {
     public override (string input, long? expected1, long? expected2)[] Samples =>
     [
@@ -19,64 +19,39 @@ public class Day05() : Solver(2025, 5, "")
         """, 3, 14),
     ];
 
+    private static List<(long start, long end)> ParseRanges(List<string> lines) =>
+        lines.Select(line => line.Split('-'))
+             .Select(p => (start: long.Parse(p[0]), end: long.Parse(p[1])))
+             .ToList();
+
     public override long Part1(string input)
     {
         var groups = Parse.Groups(input);
+        var ranges = ParseRanges(groups[0]);
+        var ingredientIds = groups[1].Select(long.Parse);
 
-        // Parse fresh ranges
-        var ranges = groups[0]
-            .Select(line =>
-            {
-                var parts = line.Split('-');
-                return (start: long.Parse(parts[0]), end: long.Parse(parts[1]));
-            })
-            .ToList();
-
-        // Parse available ingredient IDs
-        var ingredientIds = groups[1].Select(long.Parse).ToList();
-
-        // Count fresh ingredients (those in any range)
         return ingredientIds.Count(id => ranges.Any(r => id >= r.start && id <= r.end));
     }
 
     public override long Part2(string input)
     {
         var groups = Parse.Groups(input);
+        var ranges = ParseRanges(groups[0]).OrderBy(r => r.start);
 
-        // Parse fresh ranges
-        var ranges = groups[0]
-            .Select(line =>
-            {
-                var parts = line.Split('-');
-                return (start: long.Parse(parts[0]), end: long.Parse(parts[1]));
-            })
-            .OrderBy(r => r.start)
-            .ToList();
-
-        // Merge overlapping ranges and count total fresh IDs
         long count = 0;
-        var (currentStart, currentEnd) = ranges[0];
+        long currentStart = -1, currentEnd = -2;
 
-        for (int i = 1; i < ranges.Count; i++)
+        foreach (var (start, end) in ranges)
         {
-            var (start, end) = ranges[i];
             if (start <= currentEnd + 1)
-            {
-                // Overlapping or adjacent - extend current range
                 currentEnd = Math.Max(currentEnd, end);
-            }
             else
             {
-                // No overlap - add current range count and start new range
                 count += currentEnd - currentStart + 1;
-                currentStart = start;
-                currentEnd = end;
+                (currentStart, currentEnd) = (start, end);
             }
         }
 
-        // Add the last range
-        count += currentEnd - currentStart + 1;
-
-        return count;
+        return count + currentEnd - currentStart + 1;
     }
 }
