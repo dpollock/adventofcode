@@ -26,15 +26,6 @@ public static class Parse
 {
     public static string[] Lines(string input) => input.Split('\n');
 
-    public static int[] Ints(string input) =>
-        Lines(input).Select(int.Parse).ToArray();
-
-    public static long[] Longs(string input) =>
-        Lines(input).Select(long.Parse).ToArray();
-
-    public static IEnumerable<T> Lines<T>(string input, Func<string, T> parser) =>
-        Lines(input).Select(parser);
-
     public static IEnumerable<T> Regex<T>(string input, string pattern, Func<Match, T> mapper, string separator = "\n")
     {
         var regex = new Regex(pattern);

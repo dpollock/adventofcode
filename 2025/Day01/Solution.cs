@@ -23,7 +23,7 @@ public class Day01() : Solver(2025, 1, "Secret Entrance")
         var dial = 50;
         var timesOnZero = 0;
 
-        var moves = Parse.Lines(input, line => (line[0], int.Parse(line[1..])));
+        var moves = Parse.Lines(input).Select(line => (line[0], int.Parse(line[1..])));
         foreach (var (direction, distance) in moves)
         {
             dial = direction == 'L'
@@ -41,7 +41,7 @@ public class Day01() : Solver(2025, 1, "Secret Entrance")
         var dial = 50;
         var timesOnZero = 0L;
 
-        var moves = Parse.Lines(input, line => (line[0], int.Parse(line[1..])));
+        var moves = Parse.Lines(input).Select(line => (line[0], int.Parse(line[1..])));
         foreach (var (direction, distance) in moves)
         {
             // Count how many times we land on 0 during this rotation
