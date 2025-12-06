@@ -35,7 +35,6 @@ Of course, the actual worksheet is *much* wider. You'll need to make sure to unr
 Solve the problems on the math worksheet. *What is the grand total found by adding together all of the answers to the individual problems?*
 
 Your puzzle answer was `6172481852142`.
-The first half of this puzzle is complete! It provides one gold star: *
 
 ## --- Part Two ---
 
