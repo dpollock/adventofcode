@@ -135,7 +135,6 @@ To repair the teleporter, you first need to understand the beam-splitting proper
 Analyze your manifold diagram. *How many times will the beam be split?*
 
 Your puzzle answer was `1600`.
-The first half of this puzzle is complete! It provides one gold star: *
 
 ## --- Part Two ---
 
