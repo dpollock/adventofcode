@@ -43,17 +43,34 @@ public class Day09() : Solver(2025, 9, "Movie Theater")
     public override long Part2(string input)
     {
         var vertices = ParseVertices(input);
+        int n = vertices.Length;
 
-        // Build polygon edges (consecutive vertices connected by horizontal/vertical lines)
-        var edges = vertices.Select((v, i) => (v, vertices[(i + 1) % vertices.Length]))
-                            .Select(e => (e.v.x, e.v.y, e.Item2.x, e.Item2.y))
-                            .ToArray();
+        // Pre-sort edges into sorted arrays for binary search
+        var verticalEdges = new List<(int x, int minY, int maxY)>();
+        var horizontalEdges = new List<(int y, int minX, int maxX)>();
+
+        for (int i = 0; i < n; i++)
+        {
+            var (x1, y1) = vertices[i];
+            var (x2, y2) = vertices[(i + 1) % n];
+
+            if (x1 == x2)
+                verticalEdges.Add((x1, Math.Min(y1, y2), Math.Max(y1, y2)));
+            else
+                horizontalEdges.Add((y1, Math.Min(x1, x2), Math.Max(x1, x2)));
+        }
+
+        // Sort for efficient range queries
+        var vEdgesByX = verticalEdges.OrderBy(e => e.x).ToArray();
+        var hEdgesByY = horizontalEdges.OrderBy(e => e.y).ToArray();
+        var vEdgeXs = vEdgesByX.Select(e => e.x).ToArray();
+        var hEdgeYs = hEdgesByY.Select(e => e.y).ToArray();
 
         long maxArea = 0;
 
-        for (int i = 0; i < vertices.Length; i++)
+        for (int i = 0; i < n; i++)
         {
-            for (int j = i + 1; j < vertices.Length; j++)
+            for (int j = i + 1; j < n; j++)
             {
                 var (ax, ay) = vertices[i];
                 var (bx, by) = vertices[j];
@@ -63,10 +80,42 @@ public class Day09() : Solver(2025, 9, "Movie Theater")
 
                 if (x1 == x2 || y1 == y2) continue;
 
-                // Check no polygon edge crosses rectangle interior
-                bool valid = !edges.Any(e => EdgeCrossesRectangle(e, x1, y1, x2, y2));
+                // Check vertical edges crossing rectangle (x in (x1,x2), y overlaps [y1,y2])
+                int vStart = LowerBound(vEdgeXs, x1 + 1);
+                int vEnd = LowerBound(vEdgeXs, x2);
+                bool blocked = false;
 
-                if (valid && IsInsidePolygon((x1 + x2) / 2, (y1 + y2) / 2, edges))
+                for (int k = vStart; k < vEnd && !blocked; k++)
+                {
+                    var e = vEdgesByX[k];
+                    if (e.minY < y2 && e.maxY > y1) blocked = true;
+                }
+
+                if (blocked) continue;
+
+                // Check horizontal edges crossing rectangle (y in (y1,y2), x overlaps [x1,x2])
+                int hStart = LowerBound(hEdgeYs, y1 + 1);
+                int hEnd = LowerBound(hEdgeYs, y2);
+
+                for (int k = hStart; k < hEnd && !blocked; k++)
+                {
+                    var e = hEdgesByY[k];
+                    if (e.minX < x2 && e.maxX > x1) blocked = true;
+                }
+
+                if (blocked) continue;
+
+                // Ray cast to check if inside polygon
+                int midX = (x1 + x2) / 2, midY = (y1 + y2) / 2;
+                int crossings = 0;
+                int rayStart = LowerBound(vEdgeXs, midX + 1);
+                for (int k = rayStart; k < vEdgesByX.Length; k++)
+                {
+                    var e = vEdgesByX[k];
+                    if (midY >= e.minY && midY < e.maxY) crossings++;
+                }
+
+                if (crossings % 2 == 1)
                 {
                     long area = (long)(x2 - x1 + 1) * (y2 - y1 + 1);
                     maxArea = Math.Max(maxArea, area);
@@ -77,36 +126,15 @@ public class Day09() : Solver(2025, 9, "Movie Theater")
         return maxArea;
     }
 
-    private static bool EdgeCrossesRectangle((int x1, int y1, int x2, int y2) edge, int rx1, int ry1, int rx2, int ry2)
+    private static int LowerBound(int[] arr, int value)
     {
-        var (ex1, ey1, ex2, ey2) = edge;
-
-        if (ex1 == ex2) // Vertical edge
+        int lo = 0, hi = arr.Length;
+        while (lo < hi)
         {
-            if (ex1 > rx1 && ex1 < rx2) // Edge x strictly inside rectangle
-            {
-                int minY = Math.Min(ey1, ey2), maxY = Math.Max(ey1, ey2);
-                if (minY < ry2 && maxY > ry1) return true;
-            }
+            int mid = (lo + hi) / 2;
+            if (arr[mid] < value) lo = mid + 1;
+            else hi = mid;
         }
-        else // Horizontal edge
-        {
-            if (ey1 > ry1 && ey1 < ry2) // Edge y strictly inside rectangle
-            {
-                int minX = Math.Min(ex1, ex2), maxX = Math.Max(ex1, ex2);
-                if (minX < rx2 && maxX > rx1) return true;
-            }
-        }
-        return false;
-    }
-
-    private static bool IsInsidePolygon(int px, int py, (int x1, int y1, int x2, int y2)[] edges)
-    {
-        // Ray casting: count vertical edges to the right
-        int crossings = edges.Count(e =>
-            e.x1 == e.x2 && e.x1 > px &&
-            py >= Math.Min(e.y1, e.y2) && py < Math.Max(e.y1, e.y2));
-
-        return crossings % 2 == 1;
+        return lo;
     }
 }
